@@ -1,0 +1,275 @@
+import {
+  ApplicationCommandOptionType,
+  APIApplicationCommandOption,
+  _AddUndefinedToPossiblyUndefinedPropertiesOfInterface,
+  APIApplicationCommandAutocompleteInteraction,
+} from "discord-api-types/v10";
+
+import type { CommandDefinitionType } from "./internal.js";
+
+export interface APIApplicationCommandAutocompleteInteractionModified {
+  type: ApplicationCommandOptionType;
+  name: string;
+  value?: string | number | boolean; // The value of the option (can be string, number, or boolean)
+  focused?: boolean;
+  options?: APIApplicationCommandOption[]; // Nested options (for subcommands, etc.)
+}
+/**
+ * Builder class for handling autocomplete keys.
+ *
+ * This class is used to manage and resolve the paths for autocomplete keys in Discord application commands.
+ *
+ * @example
+ *
+ * const weather = router.command(
+ *   (builder) =>
+ *     builder
+ *       .setName("weather")  // The command name
+ *       .setDescription("QuQuery weather information!")  // The command description
+ *       .addStringOption(option =>
+ *         option
+ *           .setName("city")  // Option name
+ *           .setDescription("City to get the weather for")  // Option description
+ *           .setAutocomplete(true) // Enable autocomplete for this option
+ *       ),
+ *   (interaction) => handler
+ * );
+ * router.autocomplete(weather.getAutoCompleteKey("city"), autocompleteMiddleware);
+ */
+
+class AutoCompleteKeyBuilder {
+  private path: string[] = []; // Array to store path segment
+
+  /**
+   * @internal
+   */
+  __internal_CommandDefinition:
+    | CommandDefinitionType
+    | _AddUndefinedToPossiblyUndefinedPropertiesOfInterface<
+        APIApplicationCommandOption[] | undefined
+      >
+    | _AddUndefinedToPossiblyUndefinedPropertiesOfInterface<APIApplicationCommandOption>;
+
+  constructor(CommandDefinition: CommandDefinitionType) {
+    this.__internal_CommandDefinition = CommandDefinition;
+  }
+
+  /**
+   * Clones the current AutoCompleteKeyBuilder.
+   * Throws an error if the path has already been partially built.
+   * @example
+   *```ts
+   * const weatherCommandAutoCompleteKey = router.command(
+   *(builder) =>
+   * builder
+   *  .setName("weather")
+   * .setDescription("Query weather information!")
+   * // First autocomplete option
+   *.addStringOption((option) =>
+   *  option
+   *    .setName("city")
+   *   .setDescription("City to get the weather for")
+   *  .setAutocomplete(true)
+   *)
+   * //Second autocomplete option
+   *.addStringOption((option) =>
+   *  option
+   *   .setName("unit")
+   *          .setDescription("Unit for temperature")
+   *         .setAutocomplete(true)
+   *    ),
+   *(interaction) => handler
+   *
+   *const cityAutoCompleteKey = weatherCommandAutoCompleteKey.clone();
+   *const unitAutoCompleteKey = weatherCommandAutoCompleteKey.clone();
+   *
+   * router.autocomplete(cityAutoCompleteKey.getAutoCompleteKey("city"), autocompleteMiddleware);
+   * router.autocomplete(unitAutoCompleteKey.getAutoCompleteKey("unit"), autocompleteMiddleware2);
+   *```
+   */
+
+  public clone() {
+    if (this.path.length > 1)
+      throw new Error(
+        "[AutoCompleteKeyBuilder - Discord.http] Can't clone, after method has been used."
+      );
+    return new AutoCompleteKeyBuilder(this.__internal_CommandDefinition as any);
+  }
+
+  /**
+   * Get an autocomplete key for router.
+   *
+   *
+   * @example
+   ```ts
+   * const weatherCommandAutoCompleteKey = router.command(
+   *(builder) =>
+   * builder
+   *  .setName("weather")
+   * .setDescription("Query weather information!")
+   *.addStringOption((option) =>
+   *  option
+   *    .setName("city")
+   *   .setDescription("City to get the weather for")
+   *  .setAutocomplete(true)
+   *)
+   *
+   * router.autocomplete(weatherCommandAutoCompleteKey.getAutocompleteKey("city"), autocompleteMiddleware);
+   * ```
+  */
+
+  public getAutocompleteKey(name: string) {
+    this.validate(
+      name,
+      ApplicationCommandOptionType.String,
+      ApplicationCommandOptionType.Number,
+      ApplicationCommandOptionType.Integer
+    );
+    this.path.push(name);
+    return this;
+  }
+
+  /**
+   * Get a subcommand for an autocomplete key from a slash command.
+   * @example
+   * ```ts
+   *const musicCommand = router.command(
+   *(builder) =>
+   *   builder
+   *    .setName("music")
+   *   .setDescription("Music related commands")
+   *  .addSubcommand((sub) =>
+   *   sub
+   *    .setName("play")
+   *   .setDescription("Play a song")
+   *  .addStringOption((option) =>
+   *   option
+   *    .setName("song")
+   *   .setDescription("Song name")
+   *  .setAutocomplete(true)
+   *)
+   *), commandMiddleware);
+
+   * const MusicCommandAutoCompleteKey = musicCommand.getSubCommand("play").getAutocompleteKey("song");
+   *
+   * router.autocomplete(MusicCommandAutoCompleteKey, handler)
+   * ```
+   */
+
+  public getSubCommand(name: string) {
+    this.validate(name, ApplicationCommandOptionType.Subcommand);
+    this.path.push(name);
+    return this;
+  }
+
+  /**
+   * @example
+   * ```ts
+   * const adminCommand = router.command(
+   *   (builder) =>
+   *     builder
+   *       .setName("admin")
+   *       .setDescription("Admin utilities")
+   *       .addSubcommandGroup((group) =>
+   *         group
+   *           .setName("user")
+   *           .setDescription("User-related commands")
+   *           .addSubcommand((sub) =>
+   *             sub
+   *               .setName("ban")
+   *               .setDescription("Ban a user")
+   *               .addStringOption((option) =>
+   *                 option
+   *                   .setName("reason")
+   *                   .setDescription("Reason for banning")
+   *                   .setAutocomplete(true)
+   *               )
+   *           )
+   *       ),
+   *   commandHandler
+   * );
+   *
+   * router.autocomplete(
+   *   adminCommand
+   *     .getSubCommandGroup("user")
+   *     .getSubCommand("ban")
+   *     .getAutocompleteKey("reason"), AutoCompleteHandler
+   * );
+   * ```
+   */
+
+  public getSubCommandGroup(name: string) {
+    this.validate(name, ApplicationCommandOptionType.SubcommandGroup);
+    this.path.push(name);
+    return this;
+  }
+
+  /**
+   * @internal
+   * Validates if a given key exists within the current command definition and is of the correct type.
+   */
+
+  private validate(key: string, ...keyType: ApplicationCommandOptionType[]) {
+    if (
+      !this.__internal_CommandDefinition ||
+      !("options" in this.__internal_CommandDefinition)
+    )
+      throw new Error(`Invalid key ${key}`);
+
+    const currentOption = this.__internal_CommandDefinition.options?.find(
+      (option_) => option_.name === key && keyType.includes(option_.type)
+    );
+    if (!currentOption) throw new Error(`Invalid key ${key}`);
+
+    this.__internal_CommandDefinition = currentOption;
+  }
+
+  /**
+   * @internal
+   * Resolves the complete path of the autocomplete key.
+   */
+
+  static _resolve(
+    resolvable:
+      | AutoCompleteKeyBuilder
+      | APIApplicationCommandAutocompleteInteraction
+  ) {
+    if (resolvable instanceof AutoCompleteKeyBuilder)
+      return resolvable.path.join(":");
+    else {
+      return this.__internal_buildAutoCompleteKey(
+        resolvable.data.options as any
+      );
+    }
+  }
+
+  /**
+   * @internal
+   * Returns the a autocomplete key using name upto focused option.
+   */
+
+  static __internal_buildAutoCompleteKey(
+    options: APIApplicationCommandAutocompleteInteractionModified[],
+    path = ""
+  ): string {
+    for (const option of options) {
+      // If the option is focused, return the full path
+      if (option.focused) {
+        return path ? `${path}:${option.name}` : option.name;
+      }
+
+      if (option.options && option.options.length > 0) {
+        const nestedPath = this.__internal_buildAutoCompleteKey(
+          option.options,
+          path ? `${path}:${option.name}` : option.name
+        );
+        if (nestedPath) {
+          return nestedPath;
+        }
+      }
+    }
+    throw Error("Autocomplete event was fired without any options.");
+  }
+}
+
+export default AutoCompleteKeyBuilder;

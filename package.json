@@ -1,0 +1,52 @@
+{
+  "name": "discord.https",
+  "version": "1.0.0",
+  "description": "Discord.https is a modular library for building and managing Discord HTTP interactions with the Discord API. It provides tools for routing and managing interaction efficiently.",
+  "main": "./dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "cd dist && node ."
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./router": {
+      "import": "./dist/interactionRouter/index.js",
+      "types": "./dist/interactionRouter/index.d.ts"
+    }
+  },
+  "author": "discord.https",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/builders": "^1.11.3",
+    "@discordjs/rest": "^2.6.0",
+    "@discordjs/util": "^1.1.1",
+    "@noble/ed25519": "^3.0.0",
+    "@sapphire/snowflake": "^3.5.5",
+    "chalk": "^5.6.0",
+    "discord-api-types": "^0.38.22"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1"
+  },
+  "keywords": [
+    "discord",
+    "discord.js",
+    "discord-http-interactions",
+    "discord-interactions",
+    "http-interactions",
+    "discord.https",
+    "discord-api",
+    "interaction-router",
+    "discord-commands",
+    "discord-cloudflare"
+  ]
+}
