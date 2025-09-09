@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write # needed to create releases
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -60,9 +63,15 @@ jobs:
       #   run: |
       #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
       #     git config --local user.name "github-actions[bot]"
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
+
       - name: Create GitHub release
         if: steps.check.outputs.version_equal == 'true'
         run: |
-          gh release create "v${{ steps.check.outputs.new_version }}" --title "v${{ steps.check.outputs.new_version }}"
+          gh release create "v${{ steps.check.outputs.new_version }}" \
+          dist/* \
+          --title "v${{ steps.check.outputs.new_version }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
