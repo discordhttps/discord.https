@@ -1,5 +1,5 @@
 {
-  "name": "discord.http",
+  "name": "discord.https",
   "version": "2.0.0",
   "description": "Discord.https is a modular library for building and managing Discord HTTP interactions with the Discord API. It provides tools for routing and managing interaction efficiently.",
   "main": "./dist/index.js",
