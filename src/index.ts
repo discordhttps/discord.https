@@ -275,7 +275,6 @@ class Client extends HttpInteractionServer {
   }
   async getRegistar(log = true) {
     const commandsBody = this.router.CommandDefinitions;
-    console.log("route:", Routes.currentApplication().toString());
     var currentClient: APIApplication;
     try {
       currentClient = (await this.client.get(
@@ -297,13 +296,13 @@ class Client extends HttpInteractionServer {
         chalk.bold(chalk.cyan("Approximate Guild Count: ")) +
           (currentClient.approximate_guild_count
             ? chalk.green(currentClient.approximate_guild_count)
-            : chalk.redBright("unknown"))
+            : chalk.redBright("0"))
       );
       console.log(
         chalk.bold(chalk.cyan("Approximate User Install Count: ")) +
           (currentClient.approximate_user_install_count
             ? chalk.green(currentClient.approximate_user_install_count)
-            : chalk.redBright("unknown"))
+            : chalk.redBright("0"))
       );
     }
     var upperThis = this;
