@@ -1,5 +1,5 @@
 {
-  "name": "discord.https",
+  "name": "discord.http",
   "version": "2.0.0",
   "description": "Discord.https is a modular library for building and managing Discord HTTP interactions with the Discord API. It provides tools for routing and managing interaction efficiently.",
   "main": "./dist/index.js",
@@ -33,9 +33,6 @@
     "@sapphire/snowflake": "^3.5.5",
     "chalk": "^5.6.0",
     "discord-api-types": "^0.38.22"
-  },
-  "devDependencies": {
-    "@types/node": "^24.3.1"
   },
   "keywords": [
     "discord",

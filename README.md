@@ -15,5 +15,5 @@ It handles various interactions and organizes them into modular routes, making y
 - [ ] Build structures → reference: https://www.npmjs.com/package/@discordjs/structures
 - [ ] Build a simplified `npx create-app` command [in progress]
 - [ ] Implement tests
-- [x] HTTP adapters to support all hosting environments. Currently implemented: Node.js adapter for Node.js runtime and Cloudflare adapter for V8 isolates runtime [will be published soon]
+- [x] HTTP adapters to support all hosting environments. Currently implemented: Node.js adapter for [Node.js runtime](https://github.com/discord-http/nodejs-adapter) and [Cloudflare adapter for V8 isolates runtime](https://github.com/discord-http/cloudflare-adapter)
 - [x] Examples [will be published soon]
