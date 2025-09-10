@@ -190,6 +190,10 @@ class InteractionRouterManager {
     ReturnType<(typeof SlashCommandBuilder)["prototype"]["toJSON"]>
   > = [];
 
+  constructor(public isDebug = false) {
+    this.isDebug = isDebug;
+  }
+
   register(...routes: Array<InteractionRouter | InteractionRouterCollector>) {
     routes.forEach((route) => {
       if (route instanceof InteractionRouter) {
@@ -200,6 +204,23 @@ class InteractionRouterManager {
         });
       }
     });
+  }
+
+  protected debug(...message: string[]) {
+    if (this.isDebug) {
+      const datePrefix = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      return console.debug(
+        `${datePrefix} [class:InteractionRouter - discord.https]`,
+        ...message
+      );
+    }
   }
 
   mergeRoute(route: InteractionRouter) {
@@ -218,6 +239,7 @@ class InteractionRouterManager {
             ...(route.__internal_middlewares as any),
             ...(middlewares as any)
           );
+        this.debug(`Registered interaction route ${routeKey} — ${key}`);
       }
     }
     // Merge command definitions
@@ -345,6 +367,7 @@ class InteractionRouterManager {
     incomingInteraction: DiscordHttpsAPIInteraction,
     client: REST
   ) {
+    this.debug("The internal dispatcher has been invoked");
     const routeData = this.mapInteractionToRoute(incomingInteraction);
     if (routeData.routeKey === "unknown") {
       const ctx: Context = {
@@ -356,19 +379,21 @@ class InteractionRouterManager {
         ...this.middlewares,
         ...this._unknownInteraction,
       ];
-      ``;
       await this._runMiddlewareStack(ctx, middlewareStack, res);
     } else {
       const route = this.routeStack[routeData.routeKey];
       const globalMiddlewares = this.middlewares;
       const unknownMiddlewares = route.get(routeData.routeHandlerKey);
       if (!unknownMiddlewares)
-        return this._afterMiddleware(incomingInteraction, client, res);
+        return this._autoFlusher(incomingInteraction, client, res);
       const middlewareStack = [...globalMiddlewares, ...unknownMiddlewares];
       const ctx: Context = {
         client,
         resolvedInteraction: routeData.resolvedInteraction,
       };
+      this.debug(
+        `Middleware stack has been created with length: ${middlewareStack.length}`
+      );
       await this._runMiddlewareStack(ctx, middlewareStack, res);
     }
   }
@@ -390,6 +415,7 @@ class InteractionRouterManager {
     const flush = () => {
       throw new Error("FLUSH_MIDDLEWARE");
     };
+    this.debug(`Running middleware stack with ${stack.length} middleware(s)`);
 
     try {
       for (const middleware of stack) {
@@ -403,18 +429,20 @@ class InteractionRouterManager {
       }
     } catch (err) {
       if ((err as Error).message !== "FLUSH_MIDDLEWARE") {
+        this.debug("Middleware stack threw an unexpected error");
         throw err; // propagate real errors
       }
     }
-    this._afterMiddleware(ctx.resolvedInteraction, ctx.client, res);
+    this._autoFlusher(ctx.resolvedInteraction, ctx.client, res);
   }
 
-  _afterMiddleware(
+  _autoFlusher(
     interaction: Context["resolvedInteraction"],
     client: REST,
     res: HttpAdapterSererResponse
   ) {
     if (res.headersSent) return;
+    this.debug("AutoFlusher flushed response with 204 No Content");
     res.writeHead(204);
     res.end();
   }
