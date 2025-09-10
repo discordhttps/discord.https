@@ -67,11 +67,14 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
 
+      - name: Zip dist folder
+        run: zip -r dist.zip dist
+
       - name: Create GitHub release
         if: steps.check.outputs.version_equal == 'true'
         run: |
           gh release create "v${{ steps.check.outputs.new_version }}" \
-          dist/* \
+          dist.zip \
           --title "v${{ steps.check.outputs.new_version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
