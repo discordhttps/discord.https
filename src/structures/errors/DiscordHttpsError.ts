@@ -49,5 +49,5 @@ function formatMessage(code: DiscordHttpsErrorCodes, args: any[]): string {
 }
 
 export const DiscordHttpsError = makeDiscordHttpsError(Error);
-export const DiscordjsTypeError = makeDiscordHttpsError(TypeError);
-export const DiscordjsRangeError = makeDiscordHttpsError(RangeError);
+export const DiscordHttpsTypeError = makeDiscordHttpsError(TypeError);
+export const DiscordHttpsRangeError = makeDiscordHttpsError(RangeError);
