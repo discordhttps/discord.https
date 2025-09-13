@@ -53,7 +53,9 @@ await client.listen("interactions", 3000, () => {
 - Nodejs Runtime: [https://github.com/discordhttps/nodejs-example](https://github.com/discordhttps/nodejs-example)
 - V8 isolates runtime(Cloudflare Workers): [https://github.com/discordhttps/cloudflare-example](https://github.com/discordhttps/cloudflare-example)
 
-> Note: Utility methods such as <interaction>.editReply() and <interaction>.deferReply() are currently in development, so you won’t need to manually handle the raw response object in the future.
+> **Note**: Looking for volunteer contributors! If you are interested, join us on Discord: [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
+
+> **Note**: Utility methods such as <interaction>.editReply() and <interaction>.deferReply() are currently in development, so you won’t need to manually handle the raw response object in the future.
 
 ### To do:
 
