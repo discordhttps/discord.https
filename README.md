@@ -21,7 +21,7 @@ const client = new Client({
   httpAdapter: new NodeAdapter(),
 });
 
-client.commandcommand(
+client.command(
   (builder) => builder.setName("hi").setDescription("reply hello!"),
   async (interaction, client, _, res) => {
     res.writeHead(200, {
