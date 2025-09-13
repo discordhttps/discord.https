@@ -24,6 +24,14 @@
     }
   },
   "author": "discord.https",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/discord-http/discord.https.git"
+  },
+  "bugs": {
+    "url": "https://github.com/discord-http/discord.https/issues"
+  },
+  "homepage": "https://github.com/discord-http/discord.https#readme",
   "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^1.11.3",
