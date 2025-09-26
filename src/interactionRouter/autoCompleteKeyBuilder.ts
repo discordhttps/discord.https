@@ -44,12 +44,12 @@ export interface APIApplicationCommandAutocompleteInteractionModified {
  * const weather = router.command(
  *   (builder) =>
  *     builder
- *       .setName("weather")  // The command name
- *       .setDescription("QuQuery weather information!")  // The command description
+ *       .setName("weather")
+ *       .setDescription("Query weather information!")
  *       .addStringOption(option =>
  *         option
- *           .setName("city")  // Option name
- *           .setDescription("City to get the weather for")  // Option description
+ *           .setName("city")
+ *           .setDescription("City to get the weather for")
  *           .setAutocomplete(true) // Enable autocomplete for this option
  *       ),
  *   handler
