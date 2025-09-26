@@ -7,17 +7,37 @@ import {
 
 import type { CommandDefinitionType } from "./internal.js";
 
+/**
+ * A modified interaction option used while resolving an
+ * {@link APIApplicationCommandAutocompleteInteraction}.
+ */
+
 export interface APIApplicationCommandAutocompleteInteractionModified {
+  /** Type of the option (string, number, boolean, etc.). */
   type: ApplicationCommandOptionType;
+
+  /** Name of the option. */
   name: string;
+
+  /** Current value of the option if provided. */
   value?: string | number | boolean; // The value of the option (can be string, number, or boolean)
+
+  /** Whether this option is currently focused. */
   focused?: boolean;
+
+  /** Nested options for subcommands or groups. */
   options?: APIApplicationCommandOption[]; // Nested options (for subcommands, etc.)
 }
+
 /**
- * Builder class for handling autocomplete keys.
+ * Builder utility for creating **autocomplete keys** used by the router’s
+ * `autocomplete()` method.
  *
- * This class is used to manage and resolve the paths for autocomplete keys in Discord application commands.
+ * This class helps you construct a colon-delimited key that uniquely identifies
+ * the path to an option with `autocomplete` enabled in a slash command,
+ * including subcommands and subcommand groups.
+ *
+ * Simply, This class is used to manage and resolve the paths for autocomplete keys in Discord application commands.
  *
  * @example
  *
@@ -38,9 +58,11 @@ export interface APIApplicationCommandAutocompleteInteractionModified {
  */
 
 class AutoCompleteKeyBuilder {
+  /** @internal Internal list of the path segments collected so far. */
   private path: string[] = []; // Array to store path segment
 
   /**
+   * Internal pointer to the command definition as we traverse it.
    * @internal
    */
   __internal_CommandDefinition:
@@ -50,6 +72,11 @@ class AutoCompleteKeyBuilder {
       >
     | _AddUndefinedToPossiblyUndefinedPropertiesOfInterface<APIApplicationCommandOption>;
 
+  /**
+   * @internal
+   * Create a new builder from a command definition.
+   * @param CommandDefinition The root slash-command definition.
+   */
   constructor(CommandDefinition: CommandDefinitionType) {
     this.__internal_CommandDefinition = CommandDefinition;
   }
@@ -57,6 +84,7 @@ class AutoCompleteKeyBuilder {
   /**
    * Clones the current AutoCompleteKeyBuilder.
    * Throws an error if the path has already been partially built.
+   *
    * @example
    *```ts
    * const weatherCommandAutoCompleteKey = router.command(
@@ -99,6 +127,9 @@ class AutoCompleteKeyBuilder {
   /**
    * Get an autocomplete key for router.
    *
+   * @param name The option name.
+   * @returns This builder instance for chaining.
+   * 
    *
    * @example
    ```ts
@@ -131,6 +162,10 @@ class AutoCompleteKeyBuilder {
 
   /**
    * Get a subcommand for an autocomplete key from a slash command.
+   * 
+   * @param name Subcommand name.
+   * @returns This builder instance for chaining.
+   * 
    * @example
    * ```ts
    *const musicCommand = router.command(
@@ -163,6 +198,9 @@ class AutoCompleteKeyBuilder {
   }
 
   /**
+   *
+   * Get a subcommandgroup for an autocomplete key from a slash command.
+   *
    * @example
    * ```ts
    * const adminCommand = router.command(
@@ -208,7 +246,6 @@ class AutoCompleteKeyBuilder {
    * @internal
    * Validates if a given key exists within the current command definition and is of the correct type.
    */
-
   private validate(key: string, ...keyType: ApplicationCommandOptionType[]) {
     if (
       !this.__internal_CommandDefinition ||
@@ -225,10 +262,13 @@ class AutoCompleteKeyBuilder {
   }
 
   /**
+   * Resolve an autocomplete key to its colon-delimited string form.
+   *
+   * Accepts either an {@link AutoCompleteKeyBuilder} instance
+   * or a raw {@link APIApplicationCommandAutocompleteInteraction}.
+   *
    * @internal
-   * Resolves the complete path of the autocomplete key.
    */
-
   static _resolve(
     resolvable:
       | AutoCompleteKeyBuilder
@@ -247,7 +287,6 @@ class AutoCompleteKeyBuilder {
    * @internal
    * Returns the a autocomplete key using name upto focused option.
    */
-
   static __internal_buildAutoCompleteKey(
     options: APIApplicationCommandAutocompleteInteractionModified[],
     path = ""

@@ -18,14 +18,17 @@ import { DiscordHttpsInteraction } from "../structures/BaseInterction.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 /**
- * A router that handles interactions in Discord, registering middleware for various types of interactions.
+ *
+ * A router that registers and organizes middleware for all supported Discord interactions.
+ *
  *
  * @example
  * ```ts
+ *  import { InteractionRouter } from 'discord.https/router';
  * const router = new InteractionRouter();
  * export deafult router.command(
  *   (builder) => builder.setName("Ping!").setDescription("Returns Pong!"),
- *   (interaction) => interaction.reply({ content: "pong!" })
+ * handlePong
  * );
  * ```
  */
@@ -39,9 +42,8 @@ class InteractionRouter {
   __internal_middlewares: GenericMiddleware<DiscordHttpsInteraction>[] = [];
 
   /**
+   * Internal route stack mapping interaction types to middleware.
    * @internal
-   * The internal routing stack for commands, buttons, selects, etc.
-   * Used internally to map interaction types to handlers.
    */
   __internal_routeStack: RouteStack = {
     command: new Map(),
@@ -64,6 +66,11 @@ class InteractionRouter {
    */
   public CommandDefinitions: Array<CommandDefinitionType> = [];
 
+  /**
+   * @internal
+   * Ensures each provided middleware is an async function.
+   * Throws if any are not.
+   */
   tryAsync(fns: Function[]) {
     fns.forEach((fn) => {
       if (fn.constructor.name !== "AsyncFunction")
@@ -74,6 +81,15 @@ class InteractionRouter {
         );
     });
   }
+
+  /**
+   * Registers **local middleware** that runs for every interaction
+   * handled by **this router instance only**.
+   *
+   * This does **not** affect other routers or collectors.
+   *
+   * @param fns Async middleware functions.
+   */
 
   middleware(...fns: GeneralMiddleware[]) {
     this.tryAsync(fns);
@@ -87,9 +103,13 @@ class InteractionRouter {
    * ```ts
    * router.command(
    *   (builder) => builder.setName("Ping!").setDescription("Returns Pong!"),
-   *   async(interaction) => interaction.reply({ content: "pong!" })
+   *   async (interaction) => interaction.reply({ content: "pong!" })
    * );
    * ```
+   *
+   * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
+   * @param fns - Middleware functions for the command.
+   * @returns An {@link AutoCompleteKeyBuilder} for autocomplete options.
    */
   command(commandbuilder: CommandbuilderType, ...fns: CommandMiddleware[]) {
     this.tryAsync(fns);
@@ -254,8 +274,9 @@ class InteractionRouter {
 
   /**
    * @internal
-   * push method into stack
+   * Internal helper to push middleware into the routing stack.
    */
+
   private _register(type: keyof RouteStack, name: string, middlewares: any[]) {
     if (middlewares.length === 0)
       this.throwError("At least one middleware or callback is required");
@@ -277,7 +298,7 @@ class InteractionRouter {
  *
  *  @example
  * ```ts
- * import { InteractionRouter, InteractionRouterCollector } from 'discord.https/route';
+ * import { InteractionRouter, InteractionRouterCollector } from 'discord.https/router';
  *
  * const router = new InteractionRouter()
  * router.command(
@@ -293,12 +314,41 @@ class InteractionRouter {
 
 class InteractionRouterCollector {
   /**
-   * The internal routing stack for commands, buttons, selects, etc.
-   * Used internally to map interaction types to handlers.
-   *
    * @internal
+   *
+   * Internal list of collected routers..
+   *
    */
   __internal_collectedRoutes: InteractionRouter[] = [];
+
+  /**
+   * Register one or more routers or collectors.
+   * Supports nesting of collectors.
+   *
+   * @param routes Routers or collectors to merge.
+   * @returns This collector for chaining.
+   *
+   * @example
+   *
+   * Example: Organizing multiple interaction routes with a collector.
+   *
+   * ```ts
+   * import { InteractionRouterCollector } from "discord.https/router";
+   *
+   * // Recommend using PascalCase and ending with the 'Route' suffix
+   * // for variable naming convention
+   *
+   * import PingRoute from "./ping.js";
+   * import GithubRoute from "./github.js";
+   *
+   *
+   * export default new InteractionRouterCollector().register(
+   *   PingRoute,
+   *   GithubRoute
+   * );
+   * ```
+   */
+
   register(
     ...routes: (typeof InteractionRouter | InteractionRouterCollector)[]
   ) {

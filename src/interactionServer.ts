@@ -8,14 +8,40 @@ import type {
   HttpAdapterSererResponse,
 } from "./adapter/index.js";
 
+/**
+ * Signature for a handler that processes a verified Discord
+ * {@link APIInteraction} payload.
+ */
 export type HttpInteractionPayloadHandlerSignature = (
   payload: APIInteraction,
   res: HttpAdapterSererResponse
 ) => Promise<void>;
 
+/**
+ * @internal
+ *
+ * Base HTTP server for receiving and verifying Discord interaction webhooks.
+ *
+ * Extend this class and override
+ * {@link HttpInteractionServer.httpInteractionPayloadHandler | httpInteractionPayloadHandler}
+ * to handle verified interaction payloads.
+ *
+ * @example
+ * ```ts
+ * class MyServer extends HttpInteractionServer {
+ *   protected async httpInteractionPayloadHandler(interaction, res) {
+ *     // handle the Discord APIInteraction here
+ *     res.writeHead(200).end(JSON.stringify({ type: 1 }));
+ *   }
+ * }
+ *
+ * const server = new MyServer(DISCORD_PUBLIC_KEY, myAdapter, true);
+ * await server.listen("/interactions");
+ * ```
+ */
+
 export default class HttpInteractionServer {
   protected isDebug = false;
-
   constructor(
     private publicKey: string,
     private httpAdapter: HttpAdapter,
@@ -30,13 +56,24 @@ export default class HttpInteractionServer {
       value: publicKey,
     });
   }
+
+  /** @internal Throws a formatted error. */
   private throwError(message: string) {
     throw new Error(`[class:HttpInteractionServer - discord.https] ${message}`);
   }
+
+  /** @internal Logs a non-fatal error to the console. */
   private lightError(message: string) {
     console.error(`[class:HttpInteractionServer - discord.https] ${message}`);
   }
 
+  /**
+   * Internal HTTP handler bound to the adapter.
+   * Verifies signature and parses the body before invoking
+   * {@link httpInteractionPayloadHandler}.
+   *
+   * @internal
+   */
   private async httpHandler(
     endpoint: string,
     req: HttpAdapterRequest,
@@ -97,6 +134,19 @@ export default class HttpInteractionServer {
       // res.end();
     }
   }
+
+  /**
+   * @internal
+   *
+   * Handles a verified Discord interaction payload.
+   *
+   * Override this method in subclasses to process incoming interactions.
+   * Must send a valid HTTP response via `res`.
+   *
+   * @param payload - The verified {@link APIInteraction}.
+   * @param res - The HTTP response object from the adapter.
+   * @throws By default, always throws to ensure subclasses implement it.
+   */
   protected httpInteractionPayloadHandler(
     payload: APIInteraction,
     res: HttpAdapterSererResponse
@@ -104,6 +154,11 @@ export default class HttpInteractionServer {
     this.throwError(`method:httpInteractionPayloadHandler must be overridden`);
   }
 
+  /**
+   * Prints debug messages with a timestamp if debug mode is enabled.
+   *
+   * @param message - Message parts to log.
+   */
   protected debug(...message: string[]) {
     if (this.isDebug) {
       const datePrefix = new Date().toLocaleString("en-US", {
@@ -121,6 +176,11 @@ export default class HttpInteractionServer {
     }
   }
 
+  /**
+   * Verifies the request body using Discord's Ed25519 signature headers.
+   *
+   * @internal
+   */
   private async verifyPayload(req: any, rawBody: Uint8Array) {
     const signature = req.headers["x-signature-ed25519"] as string | undefined;
     const timestamp = req.headers["x-signature-timestamp"] as
@@ -149,6 +209,7 @@ export default class HttpInteractionServer {
     return verifyAsync(signatureBytes, messageBuffer, publicKeyBytes);
   }
 
+  /** @internal Converts a hex string to bytes. */
   private hexToBytes(hex: string): Uint8Array {
     if (hex.length % 2 !== 0) throw new Error("Invalid hex string");
     const bytes = new Uint8Array(hex.length / 2);
@@ -158,12 +219,45 @@ export default class HttpInteractionServer {
     return bytes;
   }
 
+  /**
+   * Returns a request handler bound to the provided endpoint.
+   *
+   * Example for making your own adapter, see these GitHub repositories:
+   *
+   * GitHub repositories:
+   * - Node.js Adapter: https://github.com/discordhttps/nodejs-adapter
+   * - Cloudflare Adapter: https://github.com/discordhttps/cloudflare-adapter
+   *
+   * @param endpoint - URL path where Discord will POST interactions (e.g. "/interactions").
+   */
   getHandler(endpoint: string) {
     return this.httpHandler.bind(
       this,
       endpoint.startsWith("/") ? endpoint : "/" + endpoint
     );
   }
+
+  /**
+   *
+   * Starts listening for HTTP requests using the configured {@link HttpAdapter}.
+   *
+   * @param endpoint - The endpoint path (e.g. `"/interactions"`).
+   * @param args - Extra arguments passed to the adapter's `listen` method.
+   *               Adapter-specific usage:
+   *               - **Node.js Adapter**: standard Node.js server arguments,
+   *                 e.g., `port` and optional callback:
+   *                 ```ts
+   *                 client.listen("/interactions", 3000, () => {
+   *                   console.log("Server is active at /interactions");
+   *                 });
+   *                 ```
+   *               - **Cloudflare Adapter**: expects a `Request` object from
+   *                 the Cloudflare Worker fetch event:
+   *                 ```ts
+   *                 return await client.listen("/interactions", request);
+   *                 ```
+   * @returns A promise resolving to the adapter's listen result.
+   */
   async listen(endpoint: string, ...args: any): Promise<any> {
     const result = this.httpAdapter.listen(
       endpoint,

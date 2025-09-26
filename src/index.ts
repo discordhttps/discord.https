@@ -6,7 +6,6 @@ import HttpInteractionServer from "./interactionServer.js";
 import InteractionRouterManger from "./interactionRouter/internal.js";
 import AutoCompleteKeyBuilder from "./interactionRouter/autoCompleteKeyBuilder.js";
 
-
 import type { HttpAdapter, HttpAdapterSererResponse } from "./adapter/index.js";
 
 import {
@@ -34,6 +33,8 @@ import type {
   CommandbuilderType,
 } from "./interactionRouter/internal.js";
 
+import type { MessageMentionOptions } from "discord.js";
+
 export interface ClientOptions {
   token: string;
   publicKey: string;
@@ -41,29 +42,122 @@ export interface ClientOptions {
   debug?: boolean;
 }
 
+/**
+ * Discord HTTPS Interaction Client.
+ *
+ * Handles registration of commands, buttons, modals, select menus, context menus,
+ * and autocomplete interactions with their associated middleware.
+ *
+ * Also exposes a {@link REST} client for direct API calls.
+ *
+ * @example
+ * ```ts
+ * import Client from "./Client.js";
+ * import NodeAdapter from "@discordhttps/nodejs-adapter";
+ *
+ * const client = new Client({
+ *   token: process.env.BOT_TOKEN!,
+ *   publicKey: process.env.PUBLIC_KEY!,
+ *   httpAdapter: new NodeAdapter(),
+ * });
+ *
+ * client.command(
+ *   (builder) => builder.setName("ping").setDescription("Replies with Pong!"),
+ *   async (interaction, client, _, res) => {
+ *     res.writeHead(200, {
+ *       "Content-Type": "application/json",
+ *     });
+ *     const username = interaction.user
+ *       ? interaction.user.global_name
+ *       : interaction.member.user.global_name;
+ *     res.end(
+ *       JSON.stringify({
+ *         type: InteractionResponseType.ChannelMessageWithSource,
+ *         data: {
+ *           content: `Hello! ${username}`,
+ *         },
+ *       })
+ *     );
+ *   }
+ * );
+ *
+ * await client.listen("interactions", 3000, () => {
+ *   console.log(
+ *     "Listening for interactions on port 3000 at the /interactions endpoint"
+ *   );
+ * });
+ * ```
+ */
+
 class Client extends HttpInteractionServer {
+  /** Interaction router manager responsible for routing incoming interactions. */
   private router = new InteractionRouterManger();
-  client = new REST({
-    version: "10",
-  });
+
+  /**
+   * REST API client instance used for interacting with Discord's HTTP API.
+   *
+   * @see {@link https://discord.js.org/docs/packages/rest/main | REST Documentation}
+   */
+  readonly rest!: REST;
+
+  /**
+   * Creates a new Discord HTTPS Interaction Client.
+   *
+   * @param options - Client configuration options.
+   * @param options.token - Discord bot token.
+   * @param options.publicKey - Discord public key for interaction verification.
+   * @param options.httpAdapter - HTTP adapter to handle incoming requests.
+   * @param options.debug - Optional. Enable debug logging. Defaults to `false`.
+   */
 
   constructor({ httpAdapter, publicKey, token, debug = false }: ClientOptions) {
     super(publicKey, httpAdapter, debug);
-    this.client.setToken(token);
+    Object.defineProperty(this, "rest", {
+      value: new REST({
+        version: "10",
+      }),
+    });
+    this.rest.setToken(token);
   }
+
+  /**
+   * Registers interaction routes.
+   *
+   * @param routes - {@link InteractionRouter} or {@link InteractionRouterCollector} instances.
+   */
 
   register(...routes: Array<InteractionRouter | InteractionRouterCollector>) {
     this.router.register(...routes);
   }
 
+  /**
+   * Adds global middleware that runs on every interaction.
+   *
+   * Receives raw {@link APIInteraction} payload and response object.
+   *
+   * @param fns - Middleware functions to execute.
+   */
+
   middleware(...fns: GeneralMiddleware[]) {
     this.router.middlewares.push(...fns);
   }
 
+  /**
+   * Adds global middleware for unknown interactions.
+   *
+   * @param fns - Functions executed when no handler matches an interaction.
+   */
   unknown(...fns: UnknownMiddleware[]) {
     this.router._unknownInteraction.push(...fns);
   }
 
+  /**
+   * Ensures all middleware functions are async.
+   *
+   * @internal
+   * @param fns - Functions to check.
+   * @throws If any function is not async.
+   */
   tryAsync(fns: Function[]) {
     fns.forEach((fn) => {
       if (fn.constructor.name !== "AsyncFunction")
@@ -82,9 +176,13 @@ class Client extends HttpInteractionServer {
    * ```ts
    * router.command(
    *   (builder) => builder.setName("Ping!").setDescription("Returns Pong!"),
-   *   (interaction) => interaction.reply({ content: "pong!" })
+   *   async (interaction) => interaction.reply({ content: "pong!" })
    * );
    * ```
+   *
+   * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
+   * @param fns - Middleware functions for the command.
+   * @returns An {@link AutoCompleteKeyBuilder} for autocomplete options.
    */
   command(commandbuilder: CommandbuilderType, ...fns: CommandMiddleware[]) {
     this.tryAsync(fns);
@@ -197,7 +295,7 @@ class Client extends HttpInteractionServer {
    *   (builder) =>
    *     builder
    *       .setName("weather")  // The command name
-   *       .setDescription("QuQuery weather information!")  // The command description
+   *       .setDescription("Query weather information!")  // The command description
    *       .addStringOption(option =>
    *         option
    *           .setName("city")  // Option name
@@ -224,6 +322,7 @@ class Client extends HttpInteractionServer {
       fns
     );
   }
+
   /**
    * Registers a user context menu interaction with its associated middleware.
    *
@@ -249,11 +348,13 @@ class Client extends HttpInteractionServer {
     this.tryAsync(fns);
     this.router._register("messageContextMenu", customId, fns);
   }
-
-  // protected httpInteractionPayloadHandler(
-  //   body: APIInteraction,
-  //   res: HttpAdapterSererResponse
-  // ) {
+  /**
+   * Handles incoming interaction payloads from Discord.
+   *
+   * @internal
+   * @param body - The raw {@link APIInteraction} payload.
+   * @param res - HTTP response object to reply to Discord.
+   */
   protected async httpInteractionPayloadHandler(
     body: APIInteraction,
     res: HttpAdapterSererResponse
@@ -271,13 +372,20 @@ class Client extends HttpInteractionServer {
     }
     this.debug("Interaction Request Received");
     // this.router.__internal_dispatch(res, body, this.client);
-    await this.router.__internal_dispatch(res, body, this.client);
+    await this.router.__internal_dispatch(res, body, this.rest);
   }
+
+  /**
+   * Returns helpers for registering slash commands.
+   *
+   * @param log - Log progress. Defaults to true.
+   * @returns Methods to register commands globally or locally.
+   */
   async getRegistar(log = true) {
     const commandsBody = this.router.CommandDefinitions;
     var currentClient: APIApplication;
     try {
-      currentClient = (await this.client.get(
+      currentClient = (await this.rest.get(
         Routes.currentApplication()
       )) as APIApplication;
     } catch (e) {
@@ -317,7 +425,7 @@ class Client extends HttpInteractionServer {
         }
 
         try {
-          await upperThis.client.put(
+          await upperThis.rest.put(
             Routes.applicationCommands(currentClient.id),
             { body: commandsBody }
           );
@@ -357,7 +465,7 @@ class Client extends HttpInteractionServer {
         }
 
         try {
-          await upperThis.client.put(
+          await upperThis.rest.put(
             Routes.applicationGuildCommands(currentClient.id, guildId),
             { body: commandsBody }
           );
@@ -385,3 +493,5 @@ class Client extends HttpInteractionServer {
 }
 
 export default Client;
+export * from "@discordjs/builders";
+export * from "discord-api-types/v10";

@@ -16,13 +16,21 @@ import {
   APIApplicationCommandInteraction,
   APIMessageComponentInteraction,
   APIModalSubmitInteraction,
+  APIEntitlement,
 } from "discord-api-types/v10";
 
 import { AutocompleteInteraction } from "./AutocompleteInteraction.js";
 import ChatInputCommandInteraction from "./ChatInputCommandInteraction.js";
 
 import { REST } from "@discordjs/rest";
-import PermissionsBitField from "./util/Bitfield.js";
+import PermissionsBitField from "./Bitfield/base.js";
+
+/**
+ * Represents a raw Discord interaction's field.
+ *
+ * This union type includes all possible interaction types that can be
+ * received from Discord's HTTP API:
+ **/
 
 export type DiscordHttpsAPIInteraction =
   | APIApplicationCommandAutocompleteInteraction
@@ -30,6 +38,12 @@ export type DiscordHttpsAPIInteraction =
   | APIMessageComponentInteraction
   | APIModalSubmitInteraction;
 
+/**
+ * Represents a layer provided by `discord.https` over the raw API,
+ * offering additional utilities.
+ *
+ * This type wraps a raw interaction with helper methods and convenience features for easier usage.
+ */
 export type DiscordHttpsInteraction = ChatInputCommandInteraction;
 /**
  * Represents an interaction.
@@ -101,7 +115,7 @@ class BaseInteraction {
   // /**
   //  * Entitlements (e.g., premium SKU access) associated with the user.
   //  */
-  // public entitlements: Collection<Snowflake, APIEntitlement>;
+  public entitlements: APIEntitlement[];
 
   // /**
   //  * Mapping of integration contexts this interaction was authorized for.
@@ -141,22 +155,17 @@ class BaseInteraction {
     Object.defineProperty(this, "token", { value: data.token });
     this.appPermissions = new PermissionsBitField(
       PermissionsBitField.resolve(data.app_permissions)
-    ).freeze();
-    this.memberPermissions = data.member?.permissions
-      ? new PermissionsBitField(
-          PermissionsBitField.resolve(data.member?.permissions)
-        ).freeze()
-      : null;
+    ).freeze() as any;
+    this.memberPermissions = (
+      data.member?.permissions
+        ? new PermissionsBitField(
+            PermissionsBitField.resolve(data.member?.permissions)
+          ).freeze()
+        : null
+    ) as any;
     this.locale = "locale" in data ? (data.locale as Locale) : Locale.EnglishUS;
     this.guildLocale = data.guild_locale ?? null;
-    // this.entitlements = data.entitlements.reduce(
-    //   (coll, entitlement) =>
-    //     coll.set(
-    //       entitlement.id,
-    //       this.client.application.entitlements._add(entitlement)
-    //     ),
-    //   new Collection()
-    // );
+    this.entitlements = data.entitlements;
     // this.authorizingIntegrationOwners = data.authorizing_integration_owners;
     this.context = data.context ?? null;
     this.attachmentSizeLimit = data.attachment_size_limit;

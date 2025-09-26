@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Build TypeDoc
-        run: npx typedoc
+        run: npm run doc:build
 
       - name: Upload to GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
