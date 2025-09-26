@@ -11,7 +11,6 @@
   ],
   "out": "docs",
   "theme": "typedoc-material-theme",
-  "themeColor": "#90D5FF",
   "excludePrivate": true,
   "includeVersion": true,
   "hideGenerator": false,
