@@ -52,7 +52,7 @@ export interface APIApplicationCommandAutocompleteInteractionModified {
  *           .setDescription("City to get the weather for")  // Option description
  *           .setAutocomplete(true) // Enable autocomplete for this option
  *       ),
- *   (interaction) => handler
+ *   handler
  * );
  * router.autocomplete(weather.getAutoCompleteKey("city"), autocompleteMiddleware);
  */

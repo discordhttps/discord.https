@@ -239,7 +239,7 @@ class InteractionRouter {
    *           .setDescription("City to get the weather for")
    *           .setAutocomplete(true)
    *       ),
-   *   (interaction) => handler
+   *   handler
    * );
    * router.autocomplete(githubQuery.getAutoCompleteKey("city"), autocompleteMiddleware);
    * ```

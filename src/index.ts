@@ -203,7 +203,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a button interaction with its associated middleware.
    *
-   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
+   * @param fns - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.button("custom_button_id", buttonMiddleware);
@@ -299,7 +299,7 @@ class Client extends HttpInteractionServer {
 
   /**
    * Registers an autocomplete interaction with its associated middleware.
-   * 
+   *
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
@@ -314,7 +314,7 @@ class Client extends HttpInteractionServer {
    *           .setDescription("City to get the weather for")  // Option description
    *           .setAutocomplete(true) // Enable autocomplete for this option
    *       ),
-   *   (interaction) => handler
+   *   handler
    * );
    * router.autocomplete(githubQuery.getAutoCompleteKey("city"), autocompleteMiddleware);
    * ```
