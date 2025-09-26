@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc --build",
     "start": "cd dist && node .",
-    "doc:build": "typedoc --themeColor '#cb9820'",
+    "doc:build": "typedoc",
     "doc:start": "http-server ./docs -a 127.0.0.1 -p 3000 -c-1"
   },
   "types": "./dist/index.d.ts",
