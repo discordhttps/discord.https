@@ -53,7 +53,7 @@ export interface ClientOptions {
  *
  * @example
  * ```ts
- * import Client from "./Client.js";
+ * import Client, { InteractionResponseType } from "./Client.js";
  * import NodeAdapter from "@discordhttps/nodejs-adapter";
  *
  * const client = new Client({
