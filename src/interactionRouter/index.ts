@@ -24,7 +24,9 @@ import { SlashCommandBuilder } from "@discordjs/builders";
  *
  * @example
  * ```ts
- *  import { InteractionRouter } from 'discord.https/router';
+ * // utility/ping.js
+ *
+ * import { InteractionRouter } from 'discord.https/router';
  * const router = new InteractionRouter();
  * export deafult router.command(
  *   (builder) => builder.setName("Ping!").setDescription("Returns Pong!"),
@@ -88,7 +90,7 @@ class InteractionRouter {
    *
    * This does **not** affect other routers or collectors.
    *
-   * @param fns Async middleware functions.
+   * @param fns Async middleware functions. See {@link GenericMiddleware} for callback parameters
    */
 
   middleware(...fns: GeneralMiddleware[]) {
@@ -108,7 +110,7 @@ class InteractionRouter {
    * ```
    *
    * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
-   * @param fns - Middleware functions for the command.
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @returns An {@link AutoCompleteKeyBuilder} for autocomplete options.
    */
   command(commandbuilder: CommandbuilderType, ...fns: CommandMiddleware[]) {
@@ -126,6 +128,7 @@ class InteractionRouter {
   /**
    * Registers a button interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.button("custom_button_id", buttonMiddleware);
@@ -139,6 +142,7 @@ class InteractionRouter {
   /**
    * Registers a modal interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.modal("custom_modal_id", modalMiddleware);
@@ -152,6 +156,7 @@ class InteractionRouter {
   /**
    * Registers a role select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.roleSelect("roleSelectName", roleSelectMiddleware);
@@ -165,6 +170,7 @@ class InteractionRouter {
   /**
    * Registers a user select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.userSelect("userSelectName", userSelectMiddleware);
@@ -177,6 +183,7 @@ class InteractionRouter {
   /**
    * Registers a string select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.stringSelect("stringSelectName", stringSelectMiddleware);
@@ -190,6 +197,7 @@ class InteractionRouter {
   /**
    * Registers a channel select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.channelSelect("channelSelectName", channelSelectMiddleware);
@@ -203,6 +211,7 @@ class InteractionRouter {
   /**
    * Registers a mentionable select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.mentionableSelect("mentionableSelectName", mentionableSelectMiddleware);
@@ -216,18 +225,19 @@ class InteractionRouter {
   /**
    * Registers an autocomplete interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * const githubQuery = router.command(
    *   (builder) =>
    *     builder
-   *       .setName("weather")  // The command name
-   *       .setDescription("QuQuery weather information!")  // The command description
+   *       .setName("weather")
+   *       .setDescription("Query weather information!")
    *       .addStringOption(option =>
    *         option
-   *           .setName("city")  // Option name
-   *           .setDescription("City to get the weather for")  // Option description
-   *           .setAutocomplete(true) // Enable autocomplete for this option
+   *           .setName("city")
+   *           .setDescription("City to get the weather for")
+   *           .setAutocomplete(true)
    *       ),
    *   (interaction) => handler
    * );
@@ -249,6 +259,7 @@ class InteractionRouter {
   /**
    * Registers a user context menu interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.userContextMenu("userContextMenuId", userContextMenuMiddleware);
@@ -262,6 +273,7 @@ class InteractionRouter {
   /**
    * Registers a message context menu interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.messageContextMenu("messageContextMenu", messageContextMenuMiddleware);
@@ -296,19 +308,25 @@ class InteractionRouter {
 /**
  * Collector for InteractionRouter.
  *
- *  @example
- * ```ts
- * import { InteractionRouter, InteractionRouterCollector } from 'discord.https/router';
  *
- * const router = new InteractionRouter()
- * router.command(
- * (builder) => builder.setName("Ping!").setDescription("Returns Pong!")
- * (interaction) => interaction.reply({
- * content: "pong!"
- * })
- * )
- * // Register routes
- * InteractionRouterCollector.register(router);
+ * @example
+ *
+ * Example: Organizing multiple interaction routes with a collector.
+ *
+ * ```ts
+ * import { InteractionRouterCollector } from "discord.https/router";
+ *
+ * // Recommend using PascalCase and ending with the 'Route' suffix
+ * // for variable naming convention
+ *
+ * import PingRoute from "./ping.js";
+ * import GithubRoute from "./github.js";
+ *
+ *
+ * export default new InteractionRouterCollector().register(
+ *   PingRoute,
+ *   GithubRoute
+ * );
  * ```
  */
 

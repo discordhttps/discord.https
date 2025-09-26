@@ -31,6 +31,7 @@ import type {
   SelectMenuMiddleware,
   CommandMiddleware,
   CommandbuilderType,
+  GenericMiddleware,
 } from "./interactionRouter/internal.js";
 
 import type { MessageMentionOptions } from "discord.js";
@@ -135,7 +136,8 @@ class Client extends HttpInteractionServer {
    *
    * Receives raw {@link APIInteraction} payload and response object.
    *
-   * @param fns - Middleware functions to execute.
+   * @param fns - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
+   *
    */
 
   middleware(...fns: GeneralMiddleware[]) {
@@ -145,7 +147,7 @@ class Client extends HttpInteractionServer {
   /**
    * Adds global middleware for unknown interactions.
    *
-   * @param fns - Functions executed when no handler matches an interaction.
+   * @param fns - Async Functions executed when no handler matches an interaction. See {@link UnknownMiddleware} for callback parameters.
    */
   unknown(...fns: UnknownMiddleware[]) {
     this.router._unknownInteraction.push(...fns);
@@ -172,17 +174,19 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a command with its associated middleware.
    *
+   * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
+   * @returns {@link AutoCompleteKeyBuilder} for autocomplete options.
    * @example
+   *
    * ```ts
    * router.command(
-   *   (builder) => builder.setName("Ping!").setDescription("Returns Pong!"),
-   *   async (interaction) => interaction.reply({ content: "pong!" })
+   *   (builder) =>
+   *     builder.setName("Ping!").setDescription("Returns Pong!"),
+   *     pongHandle
    * );
    * ```
    *
-   * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
-   * @param fns - Middleware functions for the command.
-   * @returns An {@link AutoCompleteKeyBuilder} for autocomplete options.
    */
   command(commandbuilder: CommandbuilderType, ...fns: CommandMiddleware[]) {
     this.tryAsync(fns);
@@ -199,6 +203,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a button interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.button("custom_button_id", buttonMiddleware);
@@ -212,6 +217,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a modal interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.modal("custom_modal_id", modalMiddleware);
@@ -225,6 +231,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a role select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.roleSelect("roleSelectName", roleSelectMiddleware);
@@ -238,6 +245,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a user select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.userSelect("userSelectName", userSelectMiddleware);
@@ -250,6 +258,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a string select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.stringSelect("stringSelectName", stringSelectMiddleware);
@@ -263,6 +272,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a channel select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.channelSelect("channelSelectName", channelSelectMiddleware);
@@ -276,6 +286,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a mentionable select interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.mentionableSelect("mentionableSelectName", mentionableSelectMiddleware);
@@ -288,7 +299,8 @@ class Client extends HttpInteractionServer {
 
   /**
    * Registers an autocomplete interaction with its associated middleware.
-   *
+   * 
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * const githubQuery = router.command(
@@ -326,6 +338,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a user context menu interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.userContextMenu("userContextMenuId", userContextMenuMiddleware);
@@ -339,6 +352,7 @@ class Client extends HttpInteractionServer {
   /**
    * Registers a message context menu interaction with its associated middleware.
    *
+   * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
    * router.messageContextMenu("messageContextMenu", messageContextMenuMiddleware);

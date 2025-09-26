@@ -60,11 +60,37 @@ export interface Context {
     | APIContextMenuInteraction;
 }
 
+/**
+ * A middleware function executed during an HTTP interaction lifecycle.
+ *
+ * @typeParam T - The specific interaction type handled by the middleware.
+ *   Defaults to {@link Context.resolvedInteraction | Context["resolvedInteraction"]}.
+ */
 export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
+  /**
+   * The resolved interaction for this request.
+   */
   interaction: T,
+
+  /**
+   * A read-only {@link REST} client instance.
+   * Use this to perform Discord REST API calls safely.
+   */
   client: Readonly<REST>,
+
+  /**
+   * A function you can call to immediately stop further
+   * middleware execution and end the request.
+   */
   flush: () => never,
-  // `res` will be removed in the near future, as the structure is complete.
+
+  /**
+   * The underlying {@link HttpAdapterSererResponse} object.
+   *
+   * This will be removed in the near future, as the structure is complete.
+   * This will only be available for unknown middleware
+   * (see {@link UnknownMiddleware}).
+   */
   res: HttpAdapterSererResponse
 ) => Promise<void>;
 
@@ -114,12 +140,35 @@ export type ContextMenuMiddleware =
   | MenuContextMenuMiddleware;
 
 // export type UnknownMiddleware = GenericMiddleware<DiscordHttpsAPIInteraction>;
+
+/**
+ * A middleware type for interactions that the library
+ * does not explicitly cover.
+ *
+ * @typeParam T - The Discord HTTPS API interaction type.
+ *   Defaults to {@link DiscordHttpsAPIInteraction}.
+ */
 export type UnknownMiddleware<T = DiscordHttpsAPIInteraction> = (
+  /**
+   * The raw Discord HTTPS API interaction.
+   */
   interaction: T,
+  /**
+   * A read-only {@link REST} client instance.
+   */
   client: Readonly<REST>,
+  /**
+   * Ends the middleware chain immediately.
+   * Calling `flush()` stops further middleware and never returns.
+   */
   flush: () => never,
-  // `res` should be provided to unknown middlewares only, as `UnknownMiddleware` is meant to be used
-  // only when the library doesn't cover that specific interaction.
+  /**
+   * The underlying {@link HttpAdapterSererResponse} object.
+   *
+   * `res` should be provided to unknown middlewares only,
+   * as {@link UnknownMiddleware} is meant to be used when the
+   * library does not yet cover a specific interaction.
+   */
   res: HttpAdapterSererResponse
 ) => Promise<void>;
 
@@ -168,6 +217,19 @@ interface UnknownRoute {
 }
 
 type ResolvedRoute = KnownRoute | UnknownRoute;
+
+/**
+ *
+ * @internal
+ *
+ * Manages registration and routing of Discord interaction middlewares.
+ *
+ * The `InteractionRouterManager` stores middleware stacks for
+ * different Discord interaction types (commands, buttons, selects,
+ * context menus, etc.) and provides a registry for both known and
+ * unknown routes.
+ *
+ */
 
 class InteractionRouterManager {
   middlewares: GenericMiddleware<DiscordHttpsInteraction>[] = [];
