@@ -84,7 +84,7 @@ npm install discord.https @discordhttps/cloudflare-adapter
 - **Discord.https Docs:** [https://discordhttps.github.io/discord.https/](https://discordhttps.github.io/discord.https/)
 - **Discord Interaction Docs:** [Responding to an Interaction](https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction)
 
-## Todo:
+## Todo
 
 - [ ] Build structures
 - [ ] Build a simplified `npx create-app` command
