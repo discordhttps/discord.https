@@ -10,7 +10,8 @@
     "src/structures/ChatInputCommandInteraction.ts",
   ],
   "out": "docs",
-  "theme": "typedoc-material-theme",
+  "theme": ["typedoc-material-theme"],3
+  "themeColor": "#90D5FF",
   "excludePrivate": true,
   "includeVersion": true,
   "hideGenerator": false,
