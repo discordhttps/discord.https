@@ -15,7 +15,7 @@ export type BitFieldResolvable<T extends number | bigint = number> =
 /**
  * Data structure that makes it easy to interact with a bitfield.
  */
-export default abstract class BitField<
+export default class BitField<
   TEnum extends Record<string, number | bigint> = Record<string, number>,
   TValue = TEnum[keyof TEnum]
 > {
