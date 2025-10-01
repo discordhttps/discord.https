@@ -79,6 +79,11 @@ export interface Context {
  *
  * @typeParam T - The specific interaction type handled by the middleware.
  *   Defaults to {@link Context.resolvedInteraction | Context["resolvedInteraction"]}.
+ *
+ * @param interaction - The resolved interaction for this request.
+ * @param client - A read-only {@link Client} instance.
+ * @param flush - A function you can call to immediately stop further middleware execution and end the request.
+ *
  */
 export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
   /**
@@ -88,7 +93,6 @@ export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
 
   /**
    * A read-only {@link Client} instance.
-   * Use this to perform Discord REST API calls safely.
    */
   client: Readonly<Client>,
 
@@ -151,6 +155,11 @@ export type ContextMenuMiddleware =
  *
  * @typeParam T - The Discord HTTPS API interaction type.
  *   Defaults to {@link DiscordHttpsAPIInteraction}.
+ *
+ * @param interaction - The raw Discord HTTPS API interaction.
+ * @param client - A read-only {@link Client} instance.
+ * @param flush - A function you can call to immediately stop further middleware execution and end the request. Ends the middleware chain immediately. Calling `flush()` stops further middleware.
+ * @param res -  `res` should be provided to unknown middlewares only, as {@link UnknownMiddleware} is meant to be used when the library does not yet cover a specific interaction.
  */
 export type UnknownMiddleware<T = DiscordHttpsAPIInteraction> = (
   /**
