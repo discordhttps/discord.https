@@ -30,7 +30,7 @@ jobs:
         run: npm run doc:build
 
       - name: Upload to GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs
 
