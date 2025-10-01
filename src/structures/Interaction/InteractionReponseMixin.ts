@@ -119,16 +119,16 @@ export function BaseInteractionResponseMixin<
      *
      */
     async reply(
-      options: string | (BaseMessageOptionsWithPoll & { withResponse?: false })
+      options: string | (InteractionReplyOptions & { withResponse?: false })
     ): Promise<undefined>;
     async reply(
-      options: string | (BaseMessageOptionsWithPoll & { withResponse: true })
+      options: string | (InteractionReplyOptions & { withResponse: true })
     ): Promise<InteractionCallbackResponse>;
     async reply(
       options:
         | string
         // | MessagePayload (to be added)
-        | (BaseMessageOptionsWithPoll & { withResponse?: boolean })
+        | (InteractionReplyOptions & { withResponse?: boolean })
     ): Promise<InteractionCallbackResponse | undefined> {
       if (this.deferred || this.replied)
         throw new DiscordHttpsError(
