@@ -15,7 +15,7 @@ export type BitFieldResolvable<T extends number | bigint = number> =
 /**
  * Data structure that makes it easy to interact with a bitfield.
  */
-export default class BitField<
+export class BitField<
   TEnum extends Record<string, number | bigint> = Record<string, number>,
   TValue = TEnum[keyof TEnum]
 > {
@@ -125,7 +125,7 @@ export default class BitField<
     return this;
   }
   /**
-   * Gets an object mapping field names to a {@link boolean} indicating whether the
+   * Gets an object mapping field names to a boolean indicating whether the
    * bit is available.
    * @param {...*} hasParams Additional parameters for the has method, if any
    * @returns {Object}
@@ -141,7 +141,7 @@ export default class BitField<
   }
 
   /**
-   * Gets an {@link Array} of bitfield names based on the bits available.
+   * Gets an Array of bitfield names based on the bits available.
    */
   toArray(...hasParams: any[]): string[] {
     return [...this[Symbol.iterator](...hasParams)];

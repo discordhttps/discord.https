@@ -1,12 +1,16 @@
+import {
+  InteractionRouterManager,
+  userContextCommandBuilder,
+  messageContextCommandBuilder,
+  type userContextCommandBuilderType,
+  type messageContextCommandBuilderType,
+} from "./interactionRouter/internal.js";
+import { HttpInteractionServer } from "./interactionServer.js";
+import type { HttpAdapter, HttpAdapterSererResponse } from "./adapter/index.js";
+import { AutoCompleteKeyBuilder } from "./interactionRouter/autoCompleteKeyBuilder.js";
 import chalk from "chalk";
 import { REST } from "@discordjs/rest";
 import { SlashCommandBuilder } from "@discordjs/builders";
-
-import HttpInteractionServer from "./interactionServer.js";
-import InteractionRouterManger from "./interactionRouter/internal.js";
-import AutoCompleteKeyBuilder from "./interactionRouter/autoCompleteKeyBuilder.js";
-
-import type { HttpAdapter, HttpAdapterSererResponse } from "./adapter/index.js";
 
 import {
   InteractionType,
@@ -32,9 +36,9 @@ import type {
   CommandMiddleware,
   CommandbuilderType,
   GenericMiddleware,
+  UserContextMenuMiddleware,
+  MessageContextMenuMiddleware,
 } from "./interactionRouter/internal.js";
-
-import type { MessageMentionOptions } from "discord.js";
 
 export interface ClientOptions {
   token: string;
@@ -92,7 +96,7 @@ export interface ClientOptions {
 
 class Client extends HttpInteractionServer {
   /** Interaction router manager responsible for routing incoming interactions. */
-  private router = new InteractionRouterManger();
+  private router = new InteractionRouterManager();
 
   /**
    * REST API client instance used for interacting with Discord's HTTP API.
@@ -141,6 +145,7 @@ class Client extends HttpInteractionServer {
    */
 
   middleware(...fns: GeneralMiddleware[]) {
+    this.tryAsync(fns);
     this.router.middlewares.push(...fns);
   }
 
@@ -150,6 +155,7 @@ class Client extends HttpInteractionServer {
    * @param fns - Async Functions executed when no handler matches an interaction. See {@link UnknownMiddleware} for callback parameters.
    */
   unknown(...fns: UnknownMiddleware[]) {
+    this.tryAsync(fns);
     this.router._unknownInteraction.push(...fns);
   }
 
@@ -176,14 +182,14 @@ class Client extends HttpInteractionServer {
    *
    * @param commandbuilder - Function returning a {@link SlashCommandBuilder}.
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
-   * @returns {@link AutoCompleteKeyBuilder} for autocomplete options.
+   * @returns an {@link AutoCompleteKeyBuilder} for autocomplete options.
    * @example
    *
    * ```ts
    * router.command(
    *   (builder) =>
    *     builder.setName("Ping!").setDescription("Returns Pong!"),
-   *     pongHandle
+   *     async (interaction) => await interaction.reply("Pong!")
    * );
    * ```
    *
@@ -206,7 +212,7 @@ class Client extends HttpInteractionServer {
    * @param fns - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * router.button("custom_button_id", buttonMiddleware);
+   * router.button("custom_button_id", async (interaction) => await interaction.reply("Button Pressed!"));
    * ```
    */
   button(customId: string, ...fns: ButtonMiddleware[]) {
@@ -303,20 +309,20 @@ class Client extends HttpInteractionServer {
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * const githubQuery = router.command(
-   *   (builder) =>
+   * const weather = router.command(
+   *  async(builder) =>
    *     builder
-   *       .setName("weather")  // The command name
-   *       .setDescription("Query weather information!")  // The command description
+   *       .setName("weather")
+   *       .setDescription("Query weather information!")
    *       .addStringOption(option =>
    *         option
-   *           .setName("city")  // Option name
-   *           .setDescription("City to get the weather for")  // Option description
+   *           .setName("city")  // Option Name
+   *           .setDescription("City to get the weather for")
    *           .setAutocomplete(true) // Enable autocomplete for this option
    *       ),
    *   handler
    * );
-   * router.autocomplete(githubQuery.getAutoCompleteKey("city"), autocompleteMiddleware);
+   * router.autocomplete(weather.getAutoCompleteKey("city"), autocompleteMiddleware);
    * ```
    */
 
@@ -341,12 +347,20 @@ class Client extends HttpInteractionServer {
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * router.userContextMenu("userContextMenuId", userContextMenuMiddleware);
+   * router.userContextMenu(builder => builder.setName("Hello"), userContextMenuMiddleware);
    * ```
    */
-  userContextMenu(customId: string, ...fns: ContextMenuMiddleware[]) {
+  userContextMenu(
+    commandbuilder: userContextCommandBuilderType,
+    ...fns: UserContextMenuMiddleware[]
+  ) {
     this.tryAsync(fns);
-    this.router._register("userContextMenu", customId, fns);
+    const builder = userContextCommandBuilder();
+    const build = commandbuilder(builder);
+    this.router._register("userContextMenu", build.name, fns);
+
+    const commandDefinition = build.toJSON();
+    this.router.CommandDefinitions.push(commandDefinition);
   }
 
   /**
@@ -355,12 +369,20 @@ class Client extends HttpInteractionServer {
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * router.messageContextMenu("messageContextMenu", messageContextMenuMiddleware);
+   * router.messageContextMenu(builder => builder.setName("Hello"), messageContextMenuMiddleware);
    * ```
    */
-  messageContextMenu(customId: string, ...fns: ContextMenuMiddleware[]) {
+  messageContextMenu(
+    commandbuilder: messageContextCommandBuilderType,
+    ...fns: MessageContextMenuMiddleware[]
+  ) {
     this.tryAsync(fns);
-    this.router._register("messageContextMenu", customId, fns);
+    const builder = messageContextCommandBuilder();
+    const build = commandbuilder(builder);
+    this.router._register("messageContextMenu", build.name, fns);
+
+    const commandDefinition = build.toJSON();
+    this.router.CommandDefinitions.push(commandDefinition);
   }
   /**
    * Handles incoming interaction payloads from Discord.
@@ -386,7 +408,7 @@ class Client extends HttpInteractionServer {
     }
     this.debug("Interaction Request Received");
     // this.router.__internal_dispatch(res, body, this.client);
-    await this.router.__internal_dispatch(res, body, this.rest);
+    await this.router.__internal_dispatch(res, body, this);
   }
 
   /**
@@ -507,5 +529,6 @@ class Client extends HttpInteractionServer {
 }
 
 export default Client;
+export { AttachmentBuilder } from "./structures/Attachment/AttachmentBuilder.js";
 export * from "@discordjs/builders";
 export * from "discord-api-types/v10";

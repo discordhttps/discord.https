@@ -30,7 +30,7 @@ export interface HttpAdapter {
 export interface HttpAdapterSererResponse {
   headersSent: boolean;
   writeHead(status: number, headers?: Record<string, string>): void;
-  end(chunk?: string): void;
+  end(chunk?: string | Uint8Array): void;
 }
 
 /**

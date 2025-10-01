@@ -13,14 +13,14 @@ import type { CommandDefinitionType } from "./internal.js";
  */
 
 export interface APIApplicationCommandAutocompleteInteractionModified {
-  /** Type of the option (string, number, boolean, etc.). */
+  /** Type of the option (string, number, etc.). */
   type: ApplicationCommandOptionType;
 
   /** Name of the option. */
   name: string;
 
   /** Current value of the option if provided. */
-  value?: string | number | boolean; // The value of the option (can be string, number, or boolean)
+  value?: string; // The value of the option (can be string, integer, double, or boolean)
 
   /** Whether this option is currently focused. */
   focused?: boolean;
@@ -57,7 +57,7 @@ export interface APIApplicationCommandAutocompleteInteractionModified {
  * router.autocomplete(weather.getAutoCompleteKey("city"), autocompleteMiddleware);
  */
 
-class AutoCompleteKeyBuilder {
+export class AutoCompleteKeyBuilder {
   /** @internal Internal list of the path segments collected so far. */
   private path: string[] = []; // Array to store path segment
 
@@ -310,5 +310,3 @@ class AutoCompleteKeyBuilder {
     throw Error("Autocomplete event was fired without any options.");
   }
 }
-
-export default AutoCompleteKeyBuilder;

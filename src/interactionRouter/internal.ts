@@ -1,40 +1,55 @@
-import AutoCompleteKeyBuilder from "./autoCompleteKeyBuilder.js";
+import { AutoCompleteKeyBuilder } from "./autoCompleteKeyBuilder.js";
 import { InteractionRouter, InteractionRouterCollector } from "./index.js";
-import ChatInputCommandInteraction from "../structures/ChatInputCommandInteraction.js";
 
-import type { REST } from "@discordjs/rest";
+// Context
+import { UserContextMenuInteraction } from "../structures/Interaction/ApplicationCommandInteraction/ContextMenuInteraction/UserContext.js";
+import { MessageContextMenuInteraction } from "../structures/Interaction/ApplicationCommandInteraction/ContextMenuInteraction/MessageContext.js";
+
+// slash
+import { ChatInputCommandInteraction } from "../structures/Interaction/ApplicationCommandInteraction/ChatInputCommandInteraction.js";
+
+// Autocomplete
+import { AutoCompleteInteraction } from "../structures/Interaction/AutocompleteInteraction/AutocompleteInteraction.js";
+
+// ModalSubmit
+import { ModalSubmitInteraction } from "../structures/Interaction/ModalSubmitInteraction/ModalSubmitInteraction.js";
+
+// Select
+import { UserSelectMenuInteraction } from "../structures/Interaction/MessageComponentInteraction/Select/UserSelectComponent.js";
+import { RoleSelectMenuInteraction } from "../structures/Interaction/MessageComponentInteraction/Select/RoleSelectMenuInteraction.js";
+import { ChannelSelectMenuInteraction } from "../structures/Interaction/MessageComponentInteraction/Select/ChannelSelectMenuInteraction.js";
+import { MentionableSelectMenuInteraction } from "../structures/Interaction/MessageComponentInteraction/Select/MentionableSelectMenuInteraction.js";
+import { StringSelectMenuInteraction } from "../structures/Interaction/MessageComponentInteraction/Select/StringSelectMenuInteraction.js";
+
+// Button
+import { ButtonInteraction } from "../structures/Interaction/MessageComponentInteraction/ButtonInteraction.js";
+
 import type { HttpAdapterSererResponse } from "../adapter/index.js";
 
 import type {
   DiscordHttpsAPIInteraction,
   DiscordHttpsInteraction,
-} from "../structures/BaseInterction.js";
+} from "../structures/Interaction/BaseInterction.js";
 
 // Context
 import type {
   APIContextMenuInteraction,
-  APIMessageApplicationCommandInteraction,
   APIUserApplicationCommandInteraction,
-} from "discord-api-types/v10";
-
-// SELECT
-import type {
-  APIMessageComponentSelectMenuInteraction,
-  APIMessageRoleSelectInteractionData,
-  APIMessageUserSelectInteractionData,
-  APIMessageStringSelectInteractionData,
-  APIMessageChannelSelectInteractionData,
-  APIMessageMentionableSelectInteractionData,
+  APIMessageApplicationCommandInteraction,
+  RESTPostAPIContextMenuApplicationCommandsJSONBody,
 } from "discord-api-types/v10";
 
 // Modal
 import type { APIModalSubmitInteraction } from "discord-api-types/v10";
 
-// Button
-import type { APIMessageButtonInteractionData } from "discord-api-types/v10";
+// Button & SELECT
+import type { APIMessageComponentInteraction } from "discord-api-types/v10";
 
 // slash command
-import { APIChatInputApplicationCommandInteraction } from "discord-api-types/v10";
+import type {
+  APIChatInputApplicationCommandInteraction,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+} from "discord-api-types/v10";
 
 // Autocomplete
 import type { APIApplicationCommandAutocompleteInteraction } from "discord-api-types/v10";
@@ -46,18 +61,17 @@ import {
   ApplicationCommandType,
 } from "discord-api-types/v10";
 
-import { SlashCommandBuilder } from "@discordjs/builders";
+import type Client from "../index.js";
+
+import {
+  SlashCommandBuilder,
+  ContextMenuCommandBuilder,
+} from "@discordjs/builders";
 
 export interface Context {
-  client: REST;
-  resolvedInteraction:
-    | DiscordHttpsInteraction
-    | DiscordHttpsAPIInteraction
-    | APIMessageButtonInteractionData
-    | APIModalSubmitInteraction
-    | APIMessageComponentSelectMenuInteraction
-    | APIApplicationCommandAutocompleteInteraction
-    | APIContextMenuInteraction;
+  readonly client: Client;
+  isUnknownMiddleware: boolean;
+  resolvedInteraction: DiscordHttpsInteraction | DiscordHttpsAPIInteraction;
 }
 
 /**
@@ -73,25 +87,16 @@ export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
   interaction: T,
 
   /**
-   * A read-only {@link REST} client instance.
+   * A read-only {@link Client} instance.
    * Use this to perform Discord REST API calls safely.
    */
-  client: Readonly<REST>,
+  client: Readonly<Client>,
 
   /**
    * A function you can call to immediately stop further
    * middleware execution and end the request.
    */
-  flush: () => never,
-
-  /**
-   * The underlying {@link HttpAdapterSererResponse} object.
-   *
-   * This will be removed in the near future, as the structure is complete.
-   * This will only be available for unknown middleware
-   * (see {@link UnknownMiddleware}).
-   */
-  res: HttpAdapterSererResponse
+  flush: () => never
 ) => Promise<void>;
 
 export type GeneralMiddleware = GenericMiddleware<
@@ -100,25 +105,24 @@ export type GeneralMiddleware = GenericMiddleware<
 
 export type CommandMiddleware = GenericMiddleware<ChatInputCommandInteraction>;
 
-export type ButtonMiddleware =
-  GenericMiddleware<APIMessageButtonInteractionData>;
+export type ButtonMiddleware = GenericMiddleware<ButtonInteraction>;
 
-export type ModalMiddleware = GenericMiddleware<APIModalSubmitInteraction>;
+export type ModalMiddleware = GenericMiddleware<ModalSubmitInteraction>;
 
 export type StringSelectMenuMiddleware =
-  GenericMiddleware<APIMessageComponentSelectMenuInteraction>;
+  GenericMiddleware<StringSelectMenuInteraction>;
 
 export type RoleSelectMenuMiddleware =
-  GenericMiddleware<APIMessageRoleSelectInteractionData>;
+  GenericMiddleware<RoleSelectMenuInteraction>;
 
 export type UserSelectMenuMiddleware =
-  GenericMiddleware<APIMessageUserSelectInteractionData>;
+  GenericMiddleware<UserSelectMenuInteraction>;
 
 export type MentionableSelectMenuMiddleware =
-  GenericMiddleware<APIMessageMentionableSelectInteractionData>;
+  GenericMiddleware<MentionableSelectMenuInteraction>;
 
 export type ChannelSelectMenuMiddleware =
-  GenericMiddleware<APIMessageChannelSelectInteractionData>;
+  GenericMiddleware<ChannelSelectMenuInteraction>;
 
 export type SelectMenuMiddleware =
   | StringSelectMenuMiddleware
@@ -130,14 +134,14 @@ export type SelectMenuMiddleware =
 export type AutoCompleteMiddleware =
   GenericMiddleware<APIApplicationCommandAutocompleteInteraction>;
 
+export type MessageContextMenuMiddleware =
+  GenericMiddleware<MessageContextMenuInteraction>;
 export type UserContextMenuMiddleware =
-  GenericMiddleware<APIMessageApplicationCommandInteraction>;
-export type MenuContextMenuMiddleware =
-  GenericMiddleware<APIUserApplicationCommandInteraction>;
+  GenericMiddleware<UserContextMenuInteraction>;
 
 export type ContextMenuMiddleware =
-  | UserContextMenuMiddleware
-  | MenuContextMenuMiddleware;
+  | MessageContextMenuMiddleware
+  | UserContextMenuMiddleware;
 
 // export type UnknownMiddleware = GenericMiddleware<DiscordHttpsAPIInteraction>;
 
@@ -154,9 +158,9 @@ export type UnknownMiddleware<T = DiscordHttpsAPIInteraction> = (
    */
   interaction: T,
   /**
-   * A read-only {@link REST} client instance.
+   * A read-only {@link Client} client instance.
    */
-  client: Readonly<REST>,
+  client: Readonly<Client>,
   /**
    * Ends the middleware chain immediately.
    * Calling `flush()` stops further middleware and never returns.
@@ -201,9 +205,18 @@ export interface RouteStack {
 export type CommandbuilderType = (
   builder: SlashCommandBuilder
 ) => SlashCommandBuilder;
-export type CommandDefinitionType = ReturnType<
-  (typeof SlashCommandBuilder)["prototype"]["toJSON"]
->;
+
+export type userContextCommandBuilderType = (
+  builder: ReturnType<typeof userContextCommandBuilder>
+) => SlashCommandBuilder;
+
+export type messageContextCommandBuilderType = (
+  builder: ReturnType<typeof messageContextCommandBuilder>
+) => SlashCommandBuilder;
+
+export type CommandDefinitionType =
+  | RESTPostAPIContextMenuApplicationCommandsJSONBody
+  | RESTPostAPIChatInputApplicationCommandsJSONBody;
 
 interface KnownRoute {
   routeKey: keyof RouteStack;
@@ -231,9 +244,9 @@ type ResolvedRoute = KnownRoute | UnknownRoute;
  *
  */
 
-class InteractionRouterManager {
+export class InteractionRouterManager {
   middlewares: GenericMiddleware<DiscordHttpsInteraction>[] = [];
-  _unknownInteraction: GenericMiddleware<DiscordHttpsAPIInteraction>[] = [];
+  _unknownInteraction: UnknownMiddleware<DiscordHttpsAPIInteraction>[] = [];
   routeStack: RouteStack = {
     command: new Map(),
     button: new Map(),
@@ -248,9 +261,7 @@ class InteractionRouterManager {
     modal: new Map(),
   };
 
-  public CommandDefinitions: Array<
-    ReturnType<(typeof SlashCommandBuilder)["prototype"]["toJSON"]>
-  > = [];
+  public CommandDefinitions: Array<CommandDefinitionType> = [];
 
   constructor(public isDebug = false) {
     this.isDebug = isDebug;
@@ -328,7 +339,9 @@ class InteractionRouterManager {
   }
 
   mapInteractionToRoute(
-    interaction: DiscordHttpsAPIInteraction
+    client: Client,
+    interaction: DiscordHttpsAPIInteraction,
+    res: HttpAdapterSererResponse
   ): ResolvedRoute {
     switch (interaction.type) {
       case InteractionType.ApplicationCommand:
@@ -337,22 +350,33 @@ class InteractionRouterManager {
             return {
               routeKey: "command",
               routeHandlerKey: interaction.data.name,
-              // interaction: new ChatInputCommandInteraction(client, interaction),
-              resolvedInteraction: interaction,
+              resolvedInteraction: new ChatInputCommandInteraction(
+                client,
+                interaction as APIChatInputApplicationCommandInteraction,
+                res
+              ),
             };
 
           case ApplicationCommandType.User:
             return {
               routeKey: "userContextMenu",
               routeHandlerKey: interaction.data.name,
-              resolvedInteraction: interaction,
+              resolvedInteraction: new UserContextMenuInteraction(
+                client,
+                interaction as APIUserApplicationCommandInteraction,
+                res
+              ),
             };
 
           case ApplicationCommandType.Message:
             return {
               routeKey: "messageContextMenu",
               routeHandlerKey: interaction.data.name,
-              resolvedInteraction: interaction,
+              resolvedInteraction: new MessageContextMenuInteraction(
+                client,
+                interaction as APIMessageApplicationCommandInteraction,
+                res
+              ),
             };
         }
         break;
@@ -360,9 +384,13 @@ class InteractionRouterManager {
         switch (interaction.data.component_type) {
           case ComponentType.Button:
             return {
-              routeKey: "messageContextMenu",
+              routeKey: "button",
               routeHandlerKey: interaction.data.custom_id,
-              resolvedInteraction: interaction,
+              resolvedInteraction: new ButtonInteraction(
+                client,
+                interaction as APIMessageComponentInteraction,
+                res
+              ),
             };
           case ComponentType.RoleSelect:
             return {
@@ -399,14 +427,22 @@ class InteractionRouterManager {
         return {
           routeKey: "autocomplete",
           routeHandlerKey: AutoCompleteKeyBuilder._resolve(interaction),
-          resolvedInteraction: interaction,
+          resolvedInteraction: new AutoCompleteInteraction(
+            client,
+            interaction as APIApplicationCommandAutocompleteInteraction,
+            res
+          ),
         };
 
       case InteractionType.ModalSubmit:
         return {
           routeKey: "modal",
           routeHandlerKey: interaction.data.custom_id,
-          resolvedInteraction: interaction,
+          resolvedInteraction: new ModalSubmitInteraction(
+            client,
+            interaction as APIModalSubmitInteraction,
+            res
+          ),
         };
     }
     return {
@@ -427,32 +463,46 @@ class InteractionRouterManager {
   async __internal_dispatch(
     res: HttpAdapterSererResponse,
     incomingInteraction: DiscordHttpsAPIInteraction,
-    client: REST
+    client: Client
   ) {
     this.debug("The internal dispatcher has been invoked");
-    const routeData = this.mapInteractionToRoute(incomingInteraction);
+    const routeData = this.mapInteractionToRoute(
+      client,
+      incomingInteraction as DiscordHttpsAPIInteraction,
+      res
+    );
     if (routeData.routeKey === "unknown") {
       const ctx: Context = {
         client,
         resolvedInteraction: incomingInteraction,
+        isUnknownMiddleware: true,
       };
 
       const middlewareStack = [
-        ...this.middlewares,
+        // Middleware will not be fired for unknown middlewares.
+        // ...this.middlewares,
         ...this._unknownInteraction,
       ];
       await this._runMiddlewareStack(ctx, middlewareStack, res);
     } else {
       const route = this.routeStack[routeData.routeKey];
       const globalMiddlewares = this.middlewares;
-      const unknownMiddlewares = route.get(routeData.routeHandlerKey);
-      if (!unknownMiddlewares)
+      const knownMiddlewares = route.get(routeData.routeHandlerKey);
+      if (!knownMiddlewares)
         return this._autoFlusher(incomingInteraction, client, res);
-      const middlewareStack = [...globalMiddlewares, ...unknownMiddlewares];
+      const middlewareStack = [...globalMiddlewares, ...knownMiddlewares];
       const ctx: Context = {
         client,
         resolvedInteraction: routeData.resolvedInteraction,
+        isUnknownMiddleware: false,
       };
+
+      Object.defineProperty(ctx, "client", {
+        writable: false,
+        configurable: false,
+        enumerable: false,
+      });
+
       this.debug(
         `Middleware stack has been created with length: ${middlewareStack.length}`
       );
@@ -464,30 +514,39 @@ class InteractionRouterManager {
     ctx: Context,
     stack: Array<
       | GeneralMiddleware
-      | UnknownMiddleware
       | CommandMiddleware
       | ButtonMiddleware
       | ModalMiddleware
       | SelectMenuMiddleware
       | AutoCompleteMiddleware
       | ContextMenuMiddleware
+      | UnknownMiddleware
     >,
     res: HttpAdapterSererResponse
-  ) {
+  ): Promise<void> {
     const flush = () => {
       throw new Error("FLUSH_MIDDLEWARE");
     };
     this.debug(`Running middleware stack with ${stack.length} middleware(s)`);
 
     try {
-      for (const middleware of stack) {
-        // `res` will be removed in the near future, as the structure is complete.
-        await middleware(
-          ctx.resolvedInteraction as any,
-          ctx.client,
-          flush,
-          res
-        );
+      if (ctx.isUnknownMiddleware) {
+        for (const middleware of stack) {
+          await (middleware as any)(
+            ctx.resolvedInteraction as any,
+            ctx.client,
+            flush
+          );
+        }
+      } else {
+        for (const middleware of stack) {
+          await middleware(
+            ctx.resolvedInteraction as any,
+            ctx.client,
+            flush,
+            res
+          );
+        }
       }
     } catch (err) {
       if ((err as Error).message !== "FLUSH_MIDDLEWARE") {
@@ -500,7 +559,7 @@ class InteractionRouterManager {
 
   _autoFlusher(
     interaction: Context["resolvedInteraction"],
-    client: REST,
+    client: Client,
     res: HttpAdapterSererResponse
   ) {
     if (res.headersSent) return;
@@ -510,4 +569,16 @@ class InteractionRouterManager {
   }
 }
 
-export default InteractionRouterManager;
+export function userContextCommandBuilder() {
+  const builder = new ContextMenuCommandBuilder();
+  (builder as any).type = ApplicationCommandType.User;
+  delete (builder as any).setType;
+  return builder as Omit<ContextMenuCommandBuilder, "setType">;
+}
+
+export function messageContextCommandBuilder() {
+  const builder = new ContextMenuCommandBuilder();
+  (builder as any).type = ApplicationCommandType.Message;
+  delete (builder as any).setType;
+  return builder as Omit<ContextMenuCommandBuilder, "setType">;
+}

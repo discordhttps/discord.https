@@ -101,11 +101,11 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [
-    // "src/**/*.ts",
-    "src/*.ts",
-    "src/adapter/**/*.ts",
-    "src/interactionRouter/**/*.ts",
-    "src/strucutres/BaseInteraction.ts",
+    "src/**/*.ts",
+    // "src/*.ts",
+    // "src/adapter/**/*.ts",
+    // "src/interactionRouter/**/*.ts",
+    // "src/strucutres/BaseInteraction.ts",
   ],
   "exclude": [
     "node_modules",

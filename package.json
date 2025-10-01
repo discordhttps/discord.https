@@ -34,18 +34,16 @@
     "url": "https://github.com/discord-http/discord.https/issues"
   },
   "homepage": "https://discordhttps.github.io/discord.https",
-  "engines": {
-    "node": ">=18"
-  },
   "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^1.11.3",
+    "@discordjs/collection": "^2.1.1",
     "@discordjs/rest": "^2.6.0",
     "@discordjs/util": "^1.1.1",
     "@noble/ed25519": "^3.0.0",
     "@sapphire/snowflake": "^3.5.5",
     "chalk": "^5.6.0",
-    "discord-api-types": "^0.38.22"
+    "discord-api-types": "^0.38.26"
   },
   "keywords": [
     "discord",

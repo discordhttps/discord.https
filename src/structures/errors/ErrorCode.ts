@@ -4,7 +4,9 @@
  * Enum of DiscordHttps error codes.
  */
 
-export enum DiscordHttpsErrorCodes {
+export enum ErrorCodes {
+  HeadersSent = "HeadersSent",
+
   ClientInvalidOption = "ClientInvalidOption",
   ClientInvalidProvidedShards = "ClientInvalidProvidedShards",
   ClientMissingIntents = "ClientMissingIntents",
@@ -115,8 +117,10 @@ export enum DiscordHttpsErrorCodes {
   CommandInteractionOptionInvalidChannelType = "CommandInteractionOptionInvalidChannelType",
   AutocompleteInteractionOptionNoFocusedOption = "AutocompleteInteractionOptionNoFocusedOption",
 
-  ModalSubmitInteractionFieldNotFound = "ModalSubmitInteractionFieldNotFound",
-  ModalSubmitInteractionFieldType = "ModalSubmitInteractionFieldType",
+  ModalSubmitInteractionComponentNotFound = "ModalSubmitInteractionComponentNotFound",
+  ModalSubmitInteractionComponentType = "ModalSubmitInteractionComponentType",
+  ModalSubmitInteractionComponentEmpty = "ModalSubmitInteractionComponentEmpty",
+  ModalSubmitInteractionComponentInvalidChannelType = "ModalSubmitInteractionComponentInvalidChannelType",
 
   InvalidMissingScopes = "InvalidMissingScopes",
   InvalidScopesWithPermissions = "InvalidScopesWithPermissions",
@@ -135,4 +139,6 @@ export enum DiscordHttpsErrorCodes {
 
   PermissionOverwritesTypeMandatory = "PermissionOverwritesTypeMandatory",
   PermissionOverwritesTypeMismatch = "PermissionOverwritesTypeMismatch",
+
+  FetchResponseContentTypeNotProvided = "ContentTypeNotProvided",
 }

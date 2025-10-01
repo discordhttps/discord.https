@@ -1,22 +1,29 @@
-import AutoCompleteKeyBuilder from "./autoCompleteKeyBuilder.js";
 import type {
-  CommandDefinitionType,
-  CommandbuilderType,
-  AutoCompleteMiddleware,
-  ButtonMiddleware,
-  CommandMiddleware,
-  ContextMenuMiddleware,
-  GeneralMiddleware,
-  ModalMiddleware,
-  SelectMenuMiddleware,
-  GenericMiddleware,
   RouteStack,
+  ModalMiddleware,
+  ButtonMiddleware,
+  GenericMiddleware,
+  GeneralMiddleware,
+  CommandMiddleware,
+  CommandbuilderType,
+  SelectMenuMiddleware,
+  CommandDefinitionType,
+  AutoCompleteMiddleware,
+  UserContextMenuMiddleware,
+  MessageContextMenuMiddleware,
+  userContextCommandBuilderType,
+  messageContextCommandBuilderType,
 } from "./internal.js";
 
-import { DiscordHttpsInteraction } from "../structures/BaseInterction.js";
+import { AutoCompleteKeyBuilder } from "./autoCompleteKeyBuilder.js";
+import { DiscordHttpsInteraction } from "../structures/Interaction/BaseInterction.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
+import {
+  userContextCommandBuilder,
+  messageContextCommandBuilder,
+} from "./internal.js";
 /**
  *
  * A router that registers and organizes middleware for all supported Discord interactions.
@@ -262,12 +269,20 @@ class InteractionRouter {
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * router.userContextMenu("userContextMenuId", userContextMenuMiddleware);
+   * router.userContextMenu(builder => builder.setName("Hello"), userContextMenuMiddleware);
    * ```
    */
-  userContextMenu(customId: string, ...fns: ContextMenuMiddleware[]) {
+  userContextMenu(
+    commandbuilder: userContextCommandBuilderType,
+    ...fns: UserContextMenuMiddleware[]
+  ) {
     this.tryAsync(fns);
-    this._register("userContextMenu", customId, fns);
+    const builder = userContextCommandBuilder();
+    const build = commandbuilder(builder);
+    this._register("userContextMenu", build.name, fns);
+
+    const commandDefinition = build.toJSON();
+    this.CommandDefinitions.push(commandDefinition);
   }
 
   /**
@@ -276,12 +291,20 @@ class InteractionRouter {
    * @param fns {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function | Async} functions. See {@link GenericMiddleware} for callback parameters.
    * @example
    * ```ts
-   * router.messageContextMenu("messageContextMenu", messageContextMenuMiddleware);
+   * router.messageContextMenu(builder => builder.setName("Hello"), messageContextMenuMiddleware);
    * ```
    */
-  messageContextMenu(customId: string, ...fns: ContextMenuMiddleware[]) {
+  messageContextMenu(
+    commandbuilder: messageContextCommandBuilderType,
+    ...fns: MessageContextMenuMiddleware[]
+  ) {
     this.tryAsync(fns);
-    this._register("messageContextMenu", customId, fns);
+    const builder = messageContextCommandBuilder();
+    const build = commandbuilder(builder);
+    this._register("messageContextMenu", build.name, fns);
+
+    const commandDefinition = build.toJSON();
+    this.CommandDefinitions.push(commandDefinition);
   }
 
   /**

@@ -18,7 +18,6 @@ export type HttpInteractionPayloadHandlerSignature = (
 ) => Promise<void>;
 
 /**
- * @internal
  *
  * Base HTTP server for receiving and verifying Discord interaction webhooks.
  *
@@ -40,7 +39,7 @@ export type HttpInteractionPayloadHandlerSignature = (
  * ```
  */
 
-export default class HttpInteractionServer {
+export class HttpInteractionServer {
   protected isDebug = false;
   constructor(
     private publicKey: string,
@@ -230,7 +229,7 @@ export default class HttpInteractionServer {
    *
    * @param endpoint - URL path where Discord will POST interactions (e.g. "/interactions").
    */
-  getHandler(endpoint: string) {
+  public getHandler(endpoint: string) {
     return this.httpHandler.bind(
       this,
       endpoint.startsWith("/") ? endpoint : "/" + endpoint
@@ -258,7 +257,7 @@ export default class HttpInteractionServer {
    *                 ```
    * @returns A promise resolving to the adapter's listen result.
    */
-  async listen(endpoint: string, ...args: any): Promise<any> {
+  public async listen(endpoint: string, ...args: any): Promise<any> {
     const result = this.httpAdapter.listen(
       endpoint,
       this.getHandler(endpoint),

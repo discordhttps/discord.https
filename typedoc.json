@@ -5,8 +5,7 @@
     "src/index.ts",
     "src/adapter/*.ts",
     "src/interactionRouter/*.ts",
-    "src/structures/BaseInterction.ts",
-    "src/structures/ChatInputCommandInteraction.ts",
+    "src/structures/**/*.ts",
   ],
   "out": "docs",
   "plugin": [
@@ -19,6 +18,9 @@
   "externalSymbolLinkMappings": {
     "@discordjs/rest": {
       "REST": "https://discord.js.org/docs/packages/rest/main"
+    },
+    "@discordjs/builders": {
+      "SlashCommandBuilder": "https://discord.js.org/docs/packages/builders/1.11.2/SlashCommandBuilder:Class"
     }
   }
 }

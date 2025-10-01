@@ -1,240 +1,243 @@
 // reference -> https://github.com/discordjs/discord.js/blob/main/packages/discord.js/src/errors/Messages.js
 
-import { DiscordHttpsErrorCodes } from "./ErrorCode.js";
+import { ErrorCodes } from "./ErrorCode.js";
 
-type MessageValue = string | ((...args: any[]) => string);
+export type MessageValue = string | ((...args: any[]) => string);
 
-export const Messages: Record<DiscordHttpsErrorCodes, MessageValue> = {
-  [DiscordHttpsErrorCodes.ClientInvalidOption]: (prop: string, must: string) =>
+export const Messages: Record<ErrorCodes, MessageValue> = {
+  [ErrorCodes.HeadersSent]: `Cannot respond to interaction: headers have already been sent.`,
+  [ErrorCodes.ClientInvalidOption]: (prop: string, must: string) =>
     `The ${prop} option must be ${must}`,
-  [DiscordHttpsErrorCodes.ClientInvalidProvidedShards]:
+  [ErrorCodes.ClientInvalidProvidedShards]:
     "None of the provided shards were valid.",
-  [DiscordHttpsErrorCodes.ClientMissingIntents]:
+  [ErrorCodes.ClientMissingIntents]:
     "Valid intents must be provided for the Client.",
-  [DiscordHttpsErrorCodes.ClientNotReady]: (action: string) =>
+  [ErrorCodes.ClientNotReady]: (action: string) =>
     `The client needs to be logged in to ${action}.`,
 
-  [DiscordHttpsErrorCodes.TokenInvalid]: "An invalid token was provided.",
-  [DiscordHttpsErrorCodes.TokenMissing]:
+  [ErrorCodes.TokenInvalid]: "An invalid token was provided.",
+  [ErrorCodes.TokenMissing]:
     "Request to use token, but token was unavailable to the client.",
-  [DiscordHttpsErrorCodes.ApplicationCommandPermissionsTokenMissing]:
+  [ErrorCodes.ApplicationCommandPermissionsTokenMissing]:
     "Editing application command permissions requires an OAuth2 bearer token, but none was provided.",
 
-  [DiscordHttpsErrorCodes.BitFieldInvalid]: (bit: unknown) =>
+  [ErrorCodes.BitFieldInvalid]: (bit: unknown) =>
     `Invalid bitfield flag or number: ${bit}.`,
 
-  [DiscordHttpsErrorCodes.ShardingNoShards]: "No shards have been spawned.",
-  [DiscordHttpsErrorCodes.ShardingInProcess]: "Shards are still being spawned.",
-  [DiscordHttpsErrorCodes.ShardingInvalidEvalBroadcast]:
+  [ErrorCodes.ShardingNoShards]: "No shards have been spawned.",
+  [ErrorCodes.ShardingInProcess]: "Shards are still being spawned.",
+  [ErrorCodes.ShardingInvalidEvalBroadcast]:
     "Script to evaluate must be a function",
-  [DiscordHttpsErrorCodes.ShardingShardNotFound]: (id: number) =>
+  [ErrorCodes.ShardingShardNotFound]: (id: number) =>
     `Shard ${id} could not be found.`,
-  [DiscordHttpsErrorCodes.ShardingAlreadySpawned]: (count: number) =>
+  [ErrorCodes.ShardingAlreadySpawned]: (count: number) =>
     `Already spawned ${count} shards.`,
-  [DiscordHttpsErrorCodes.ShardingProcessExists]: (id: number) =>
+  [ErrorCodes.ShardingProcessExists]: (id: number) =>
     `Shard ${id} already has an active process.`,
-  [DiscordHttpsErrorCodes.ShardingWorkerExists]: (id: number) =>
+  [ErrorCodes.ShardingWorkerExists]: (id: number) =>
     `Shard ${id} already has an active worker.`,
-  [DiscordHttpsErrorCodes.ShardingReadyTimeout]: (id: number) =>
+  [ErrorCodes.ShardingReadyTimeout]: (id: number) =>
     `Shard ${id}'s Client took too long to become ready.`,
-  [DiscordHttpsErrorCodes.ShardingReadyDisconnected]: (id: number) =>
+  [ErrorCodes.ShardingReadyDisconnected]: (id: number) =>
     `Shard ${id}'s Client disconnected before becoming ready.`,
-  [DiscordHttpsErrorCodes.ShardingReadyDied]: (id: number) =>
+  [ErrorCodes.ShardingReadyDied]: (id: number) =>
     `Shard ${id}'s process exited before its Client became ready.`,
-  [DiscordHttpsErrorCodes.ShardingNoChildExists]: (id: number) =>
+  [ErrorCodes.ShardingNoChildExists]: (id: number) =>
     `Shard ${id} has no active process or worker.`,
-  [DiscordHttpsErrorCodes.ShardingShardMiscalculation]: (
+  [ErrorCodes.ShardingShardMiscalculation]: (
     shard: number,
     guild: string,
     count: number
   ) =>
     `Calculated invalid shard ${shard} for guild ${guild} with ${count} shards.`,
 
-  [DiscordHttpsErrorCodes.ColorRange]:
+  [ErrorCodes.ColorRange]:
     "Color must be within the range 0 - 16777215 (0xFFFFFF).",
-  [DiscordHttpsErrorCodes.ColorConvert]: (color: unknown) =>
+  [ErrorCodes.ColorConvert]: (color: unknown) =>
     `Unable to convert "${color}" to a number.`,
 
-  [DiscordHttpsErrorCodes.InviteOptionsMissingChannel]:
+  [ErrorCodes.InviteOptionsMissingChannel]:
     "A valid guild channel must be provided when GuildScheduledEvent is EXTERNAL.",
 
-  [DiscordHttpsErrorCodes.InteractionCollectorError]: (reason: string) =>
+  [ErrorCodes.InteractionCollectorError]: (reason: string) =>
     `Collector received no interactions before ending with reason: ${reason}`,
 
-  [DiscordHttpsErrorCodes.FileNotFound]: (file: string) =>
+  [ErrorCodes.FileNotFound]: (file: string) =>
     `File could not be found: ${file}`,
 
-  [DiscordHttpsErrorCodes.UserNoDMChannel]: "No DM Channel exists!",
+  [ErrorCodes.UserNoDMChannel]: "No DM Channel exists!",
 
-  [DiscordHttpsErrorCodes.VoiceNotStageChannel]:
+  [ErrorCodes.VoiceNotStageChannel]:
     "You are only allowed to do this in stage channels.",
 
-  [DiscordHttpsErrorCodes.VoiceStateNotOwn]:
+  [ErrorCodes.VoiceStateNotOwn]:
     "You cannot self-deafen/mute/request to speak on VoiceStates that do not belong to the ClientUser.",
-  [DiscordHttpsErrorCodes.VoiceStateInvalidType]: (name: string) =>
+  [ErrorCodes.VoiceStateInvalidType]: (name: string) =>
     `${name} must be a boolean.`,
 
-  [DiscordHttpsErrorCodes.ReqResourceType]:
+  [ErrorCodes.ReqResourceType]:
     "The resource must be a string, Buffer or a valid file stream.",
 
-  [DiscordHttpsErrorCodes.MessageBulkDeleteType]:
+  [ErrorCodes.MessageBulkDeleteType]:
     "The messages must be an Array, Collection, or number.",
-  [DiscordHttpsErrorCodes.MessageContentType]:
-    "Message content must be a string.",
-  [DiscordHttpsErrorCodes.MessageNonceRequired]:
+  [ErrorCodes.MessageContentType]: "Message content must be a string.",
+  [ErrorCodes.MessageNonceRequired]:
     "Message nonce is required when enforceNonce is true.",
-  [DiscordHttpsErrorCodes.MessageNonceType]:
+  [ErrorCodes.MessageNonceType]:
     "Message nonce must be an integer or a string.",
 
-  [DiscordHttpsErrorCodes.BanResolveId]: (ban: boolean = false) =>
+  [ErrorCodes.BanResolveId]: (ban: boolean = false) =>
     `Couldn't resolve the user id to ${ban ? "ban" : "unban"}.`,
-  [DiscordHttpsErrorCodes.FetchBanResolveId]:
+  [ErrorCodes.FetchBanResolveId]:
     "Couldn't resolve the user id to fetch the ban.",
 
-  [DiscordHttpsErrorCodes.PruneDaysType]: "Days must be a number",
+  [ErrorCodes.PruneDaysType]: "Days must be a number",
 
-  [DiscordHttpsErrorCodes.GuildChannelResolve]:
+  [ErrorCodes.GuildChannelResolve]:
     "Could not resolve channel to a guild channel.",
-  [DiscordHttpsErrorCodes.GuildVoiceChannelResolve]:
+  [ErrorCodes.GuildVoiceChannelResolve]:
     "Could not resolve channel to a guild voice channel.",
-  [DiscordHttpsErrorCodes.GuildChannelOrphan]:
+  [ErrorCodes.GuildChannelOrphan]:
     "Could not find a parent to this guild channel.",
-  [DiscordHttpsErrorCodes.GuildChannelUnowned]:
+  [ErrorCodes.GuildChannelUnowned]:
     "The fetched channel does not belong to this manager's guild.",
-  [DiscordHttpsErrorCodes.GuildOwned]: "Guild is owned by the client.",
-  [DiscordHttpsErrorCodes.GuildMembersTimeout]:
-    "Members didn't arrive in time.",
-  [DiscordHttpsErrorCodes.GuildSoundboardSoundsTimeout]:
+  [ErrorCodes.GuildOwned]: "Guild is owned by the client.",
+  [ErrorCodes.GuildMembersTimeout]: "Members didn't arrive in time.",
+  [ErrorCodes.GuildSoundboardSoundsTimeout]:
     "Soundboard sounds didn't arrive in time.",
-  [DiscordHttpsErrorCodes.GuildUncachedMe]:
+  [ErrorCodes.GuildUncachedMe]:
     "The client user as a member of this guild is uncached.",
-  [DiscordHttpsErrorCodes.ChannelNotCached]:
+  [ErrorCodes.ChannelNotCached]:
     "Could not find the channel where this message came from in the cache!",
-  [DiscordHttpsErrorCodes.StageChannelResolve]:
+  [ErrorCodes.StageChannelResolve]:
     "Could not resolve channel to a stage channel.",
-  [DiscordHttpsErrorCodes.GuildScheduledEventResolve]:
+  [ErrorCodes.GuildScheduledEventResolve]:
     "Could not resolve the guild scheduled event.",
-  [DiscordHttpsErrorCodes.FetchOwnerId]: (type: string) =>
+  [ErrorCodes.FetchOwnerId]: (type: string) =>
     `Couldn't resolve the ${type} ownerId to fetch the ${type} member.`,
-  [DiscordHttpsErrorCodes.InvalidType]: (name, expected, an = false) =>
+  [ErrorCodes.InvalidType]: (name, expected, an = false) =>
     `Supplied ${name} is not a${an ? "n" : ""} ${expected}.`,
-  [DiscordHttpsErrorCodes.InvalidElement]: (type, name, elem) =>
+  [ErrorCodes.InvalidElement]: (type, name, elem) =>
     `Supplied ${type} ${name} includes an invalid element: ${elem}`,
 
-  [DiscordHttpsErrorCodes.MessageThreadParent]:
+  [ErrorCodes.MessageThreadParent]:
     "The message was not sent in a guild text or announcement channel",
-  [DiscordHttpsErrorCodes.MessageExistingThread]:
-    "The message already has a thread",
-  [DiscordHttpsErrorCodes.ThreadInvitableType]: (type) =>
+  [ErrorCodes.MessageExistingThread]: "The message already has a thread",
+  [ErrorCodes.ThreadInvitableType]: (type) =>
     `Invitable cannot be edited on ${type}`,
-  [DiscordHttpsErrorCodes.NotAThreadOfParent]:
+  [ErrorCodes.NotAThreadOfParent]:
     "Provided ThreadChannelResolvable is not a thread of the parent channel.",
 
-  [DiscordHttpsErrorCodes.WebhookMessage]:
-    "The message was not sent by a webhook.",
-  [DiscordHttpsErrorCodes.WebhookTokenUnavailable]:
+  [ErrorCodes.WebhookMessage]: "The message was not sent by a webhook.",
+  [ErrorCodes.WebhookTokenUnavailable]:
     "This action requires a webhook token, but none is available.",
-  [DiscordHttpsErrorCodes.WebhookURLInvalid]:
-    "The provided webhook URL is not valid.",
-  [DiscordHttpsErrorCodes.WebhookApplication]:
+  [ErrorCodes.WebhookURLInvalid]: "The provided webhook URL is not valid.",
+  [ErrorCodes.WebhookApplication]:
     "This message webhook belongs to an application and cannot be fetched.",
 
-  [DiscordHttpsErrorCodes.MessageReferenceMissing]:
+  [ErrorCodes.MessageReferenceMissing]:
     "The message does not reference another message",
 
-  [DiscordHttpsErrorCodes.EmojiType]:
-    "Emoji must be a string or GuildEmoji/ReactionEmoji",
-  [DiscordHttpsErrorCodes.EmojiManaged]: "Emoji is managed and has no Author.",
-  [DiscordHttpsErrorCodes.MissingManageGuildExpressionsPermission]: (guild) =>
+  [ErrorCodes.EmojiType]: "Emoji must be a string or GuildEmoji/ReactionEmoji",
+  [ErrorCodes.EmojiManaged]: "Emoji is managed and has no Author.",
+  [ErrorCodes.MissingManageGuildExpressionsPermission]: (guild) =>
     `Client must have Manage Guild Expressions permission in guild ${guild} to see emoji authors.`,
 
-  [DiscordHttpsErrorCodes.NotGuildSoundboardSound]: (action) =>
+  [ErrorCodes.NotGuildSoundboardSound]: (action) =>
     `Soundboard sound is a default (non-guild) soundboard sound and can't be ${action}.`,
-  [DiscordHttpsErrorCodes.NotGuildSticker]:
+  [ErrorCodes.NotGuildSticker]:
     "Sticker is a standard (non-guild) sticker and has no author.",
 
-  [DiscordHttpsErrorCodes.ReactionResolveUser]:
+  [ErrorCodes.ReactionResolveUser]:
     "Couldn't resolve the user id to remove from the reaction.",
 
-  [DiscordHttpsErrorCodes.InviteResolveCode]:
+  [ErrorCodes.InviteResolveCode]:
     "Could not resolve the code to fetch the invite.",
-  [DiscordHttpsErrorCodes.InviteNotFound]:
-    "Could not find the requested invite.",
+  [ErrorCodes.InviteNotFound]: "Could not find the requested invite.",
 
-  [DiscordHttpsErrorCodes.DeleteGroupDMChannel]:
+  [ErrorCodes.DeleteGroupDMChannel]:
     "Bots don't have access to Group DM Channels and cannot delete them",
-  [DiscordHttpsErrorCodes.FetchGroupDMChannel]:
+  [ErrorCodes.FetchGroupDMChannel]:
     "Bots don't have access to Group DM Channels and cannot fetch them",
 
-  [DiscordHttpsErrorCodes.MemberFetchNonceLength]:
+  [ErrorCodes.MemberFetchNonceLength]:
     "Nonce length must not exceed 32 characters.",
 
-  [DiscordHttpsErrorCodes.GlobalCommandPermissions]:
+  [ErrorCodes.GlobalCommandPermissions]:
     "Permissions for global commands may only be fetched or modified by providing a GuildResolvable " +
     "or from a guild's application command manager.",
-  [DiscordHttpsErrorCodes.GuildUncachedEntityResolve]: (type) =>
+  [ErrorCodes.GuildUncachedEntityResolve]: (type) =>
     `Cannot resolve ${type} from an arbitrary guild, provide an id instead`,
 
-  [DiscordHttpsErrorCodes.InteractionAlreadyReplied]:
+  [ErrorCodes.InteractionAlreadyReplied]:
     "The reply to this interaction has already been sent or deferred.",
-  [DiscordHttpsErrorCodes.InteractionNotReplied]:
+  [ErrorCodes.InteractionNotReplied]:
     "The reply to this interaction has not been sent or deferred.",
 
-  [DiscordHttpsErrorCodes.CommandInteractionOptionNotFound]: (name) =>
+  [ErrorCodes.CommandInteractionOptionNotFound]: (name) =>
     `Required option "${name}" not found.`,
-  [DiscordHttpsErrorCodes.CommandInteractionOptionType]: (
-    name,
-    type,
-    expected
-  ) => `Option "${name}" is of type: ${type}; expected ${expected}.`,
-  [DiscordHttpsErrorCodes.CommandInteractionOptionEmpty]: (name, type) =>
+  [ErrorCodes.CommandInteractionOptionType]: (name, type, expected) =>
+    `Option "${name}" is of type: ${type}; expected ${expected}.`,
+  [ErrorCodes.CommandInteractionOptionEmpty]: (name, type) =>
     `Required option "${name}" is of type: ${type}; expected a non-empty value.`,
-  [DiscordHttpsErrorCodes.CommandInteractionOptionNoSubcommand]:
+  [ErrorCodes.CommandInteractionOptionNoSubcommand]:
     "No subcommand specified for interaction.",
-  [DiscordHttpsErrorCodes.CommandInteractionOptionNoSubcommandGroup]:
+  [ErrorCodes.CommandInteractionOptionNoSubcommandGroup]:
     "No subcommand group specified for interaction.",
-  [DiscordHttpsErrorCodes.CommandInteractionOptionInvalidChannelType]: (
+  [ErrorCodes.CommandInteractionOptionInvalidChannelType]: (
     name,
     type,
     expected
   ) =>
     `The type of channel of the option "${name}" is: ${type}; expected ${expected}.`,
-  [DiscordHttpsErrorCodes.AutocompleteInteractionOptionNoFocusedOption]:
+  [ErrorCodes.AutocompleteInteractionOptionNoFocusedOption]:
     "No focused option for autocomplete interaction.",
-  [DiscordHttpsErrorCodes.ModalSubmitInteractionFieldNotFound]: (customId) =>
-    `Required field with custom id "${customId}" not found.`,
-  [DiscordHttpsErrorCodes.ModalSubmitInteractionFieldType]: (
+
+  [ErrorCodes.ModalSubmitInteractionComponentNotFound]: (customId) =>
+    `Required component with custom id "${customId}" not found.`,
+  [ErrorCodes.ModalSubmitInteractionComponentType]: (
     customId,
     type,
     expected
   ) =>
-    `Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
+    `Component with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
+  [ErrorCodes.ModalSubmitInteractionComponentEmpty]: (customId, type) =>
+    `Required component with custom id "${customId}" is of type: ${type}; expected a non-empty value.`,
+  [ErrorCodes.ModalSubmitInteractionComponentInvalidChannelType]: (
+    customId,
+    type,
+    expected
+  ) =>
+    `The type of channel of the component with custom id "${customId}" is: ${type}; expected ${expected}.`,
 
-  [DiscordHttpsErrorCodes.InvalidMissingScopes]:
+  [ErrorCodes.InvalidMissingScopes]:
     "At least one valid scope must be provided for the invite",
-  [DiscordHttpsErrorCodes.InvalidScopesWithPermissions]:
+  [ErrorCodes.InvalidScopesWithPermissions]:
     "Permissions cannot be set without the bot scope.",
 
-  [DiscordHttpsErrorCodes.NotImplemented]: (what, name) =>
+  [ErrorCodes.NotImplemented]: (what, name) =>
     `Method ${what} not implemented on ${name}.`,
 
-  [DiscordHttpsErrorCodes.SweepFilterReturn]:
+  [ErrorCodes.SweepFilterReturn]:
     "The return value of the sweepFilter function was not false or a Function",
 
-  [DiscordHttpsErrorCodes.GuildForumMessageRequired]:
+  [ErrorCodes.GuildForumMessageRequired]:
     "You must provide a message to create a guild forum thread",
 
-  [DiscordHttpsErrorCodes.EntitlementCreateInvalidOwner]:
+  [ErrorCodes.EntitlementCreateInvalidOwner]:
     "You must provide either a guild or a user to create an entitlement, but not both",
 
-  [DiscordHttpsErrorCodes.BulkBanUsersOptionEmpty]:
+  [ErrorCodes.BulkBanUsersOptionEmpty]:
     'Option "users" array or collection is empty',
 
-  [DiscordHttpsErrorCodes.PollAlreadyExpired]: "This poll has already expired.",
+  [ErrorCodes.PollAlreadyExpired]: "This poll has already expired.",
 
-  [DiscordHttpsErrorCodes.PermissionOverwritesTypeMandatory]:
+  [ErrorCodes.PermissionOverwritesTypeMandatory]:
     '"overwrite.type" is mandatory if "overwrite.id" is a Snowflake',
-  [DiscordHttpsErrorCodes.PermissionOverwritesTypeMismatch]: (expected) =>
+  [ErrorCodes.PermissionOverwritesTypeMismatch]: (expected) =>
     `"overwrite.id" is a ${expected.toLowerCase()} object, ` +
     `but "overwrite.type" is defined and not equal to OverwriteType.${expected}`,
+
+  [ErrorCodes.FetchResponseContentTypeNotProvided]:
+    "'Content-Type' header wasn't provided in the response. Either provide a file name, or ensure the content type is included in the URL's response.",
 };
