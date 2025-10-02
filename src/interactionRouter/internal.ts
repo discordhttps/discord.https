@@ -78,14 +78,14 @@ export interface Context {
  * A middleware function executed during an HTTP interaction lifecycle.
  *
  * @typeParam T - The specific interaction type handled by the middleware.
- *   Defaults to {@link Context.resolvedInteraction | Context["resolvedInteraction"]}.
+ *   Defaults to {@link DiscordHttpsInteraction}.
  *
  * @param interaction - The resolved interaction for this request.
  * @param client - A read-only {@link Client} instance.
  * @param flush - A function you can call to immediately stop further middleware execution and end the request.
  *
  */
-export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
+export type GenericMiddleware<T = DiscordHttpsInteraction> = (
   /**
    * The resolved interaction for this request.
    */
@@ -103,9 +103,7 @@ export type GenericMiddleware<T = Context["resolvedInteraction"]> = (
   flush: () => never
 ) => Promise<void>;
 
-export type GeneralMiddleware = GenericMiddleware<
-  DiscordHttpsInteraction | DiscordHttpsAPIInteraction
->;
+export type GeneralMiddleware = GenericMiddleware;
 
 export type CommandMiddleware = GenericMiddleware<ChatInputCommandInteraction>;
 
