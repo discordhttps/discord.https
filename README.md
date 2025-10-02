@@ -1,6 +1,6 @@
 <div align="center">
 
-![Logo](https://raw.githubusercontent.com/discordhttps/discord.htpps/refs/heads/main/assets/logo.png)
+![Logo](https://raw.githubusercontent.com/discordhttps/discord.https/refs/heads/main/assets/logo.png)
 
 [![Discord](https://img.shields.io/badge/discord-blue?logo=discord&logoColor=white)](https://discord.gg/pSgfJ4K5ej)
 [![npm version](https://img.shields.io/npm/v/discord.https.svg)](https://www.npmjs.com/package/discord.https)
@@ -11,7 +11,8 @@
 
 **Discord.https** is a robust, modular library for implementing Discord HTTP interactions.
 
-3
+It handles various interactions, adds a layer of wrapper over raw interactions with rich utility methods, and organizes them into modular routes, making your bot's code cleaner, easier to understand, and easier to maintain. It works seamlessly in both serverless and persistent server environments.
+
 📄 **Documentation:** [https://discordhttps.github.io/discord.https/](https://discordhttps.github.io/discord.https/)
 
 Need help? Join us on discord  [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
