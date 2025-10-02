@@ -62,7 +62,7 @@ import type { StringSelectMenuInteraction } from "../Interaction/MessageComponen
 import type { ButtonInteraction } from "../Interaction/MessageComponentInteraction/ButtonInteraction.js";
 
 // Interaction Base
-import type { CommandInteraction as ApplicationCommandInteraction } from "../Interaction/ApplicationCommandInteraction/CommandInteractionBase.js";
+import type { CommandInteraction } from "../Interaction/ApplicationCommandInteraction/CommandInteractionBase.js";
 import type { MessageComponentInteraction } from "../Interaction/MessageComponentInteraction/Base.js";
 import type { ContextMenuInteraction } from "./ApplicationCommandInteraction/ContextMenuInteraction/Base.js";
 
@@ -259,9 +259,9 @@ export class BaseInteraction {
   }
 
   /**
-   * Indicates whether this interaction is a {@link ChatInputCommandInteraction}
+   * Indicates whether this interaction is a {@link CommandInteraction}
    */
-  isCommand(): this is ChatInputCommandInteraction {
+  isCommand(): this is CommandInteraction {
     return this.type === InteractionType.ApplicationCommand;
   }
 
@@ -416,13 +416,17 @@ export class BaseInteraction {
     );
   }
 
-  // /**
-  //  * Indicates whether this interaction can be replied to.
-  //  */
-  // isRepliable() {
-  //   return ![
-  //     InteractionType.Ping,
-  //     InteractionType.ApplicationCommandAutocomplete,
-  //   ].includes(this.type);
-  // }
+  /**
+   * Indicates whether this interaction can be replied to.
+   */
+  isRepliable(): this is
+    | ChatInputCommandInteraction
+    | ContextMenuInteraction
+    | MessageComponentInteraction
+    | ModalSubmitInteraction {
+    return ![
+      InteractionType.Ping,
+      InteractionType.ApplicationCommandAutocomplete,
+    ].includes(this.type);
+  }
 }
