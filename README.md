@@ -6,14 +6,14 @@
 [![npm version](https://img.shields.io/npm/v/discord.https.svg)](https://www.npmjs.com/package/discord.https)
 [![License](https://img.shields.io/npm/l/discord.https.svg)](LICENSE)
 [![Downloads](https://img.shields.io/npm/dm/discord.https.svg)](https://www.npmjs.com/package/discord.https)
-[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://discordhttps.github.io/discord.https/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://discordhttps.js.org/)
 </div>
 
 **Discord.https** is a robust, modular library for implementing Discord HTTP interactions.
 
 It handles various interactions, adds a layer of wrapper over raw interactions with rich utility methods, and organizes them into modular routes, making your bot's code cleaner, easier to understand, and easier to maintain. It works seamlessly in both serverless and persistent server environments.
 
-📄 **Documentation:** [https://discordhttps.github.io/discord.https/](https://discordhttps.github.io/discord.https/)
+📄 **Documentation:** [https://discordhttps.js.org/](https://discordhttps.js.org/)
 
 Need help? Join us on discord  [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
 
@@ -76,7 +76,7 @@ npm install discord.https @discordhttps/cloudflare-adapter
 
 ## Documentation
 
-- **Discord.https Docs:** [https://discordhttps.github.io/discord.https/](https://discordhttps.github.io/discord.https/)
+- **Discord.https Docs:** [https://discordhttps.js.org/](https://discordhttps.js.org/)
 - **Discord Interaction Docs:** [Responding to an Interaction](https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction)
 
 ## Todo for v4
