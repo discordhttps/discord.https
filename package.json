@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/discord-http/discord.https/issues"
   },
-  "homepage": "https://discordhttps.github.io/discord.https",
+  "homepage": "https://discordhttps.js.org",
   "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^1.11.3",
