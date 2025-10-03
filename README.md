@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/npm/l/discord.https.svg)](LICENSE)
 [![Downloads](https://img.shields.io/npm/dm/discord.https.svg)](https://www.npmjs.com/package/discord.https)
 [![Docs](https://img.shields.io/badge/docs-latest-blue)](https://discordhttps.js.org/)
+
 </div>
 
 **Discord.https** is a robust, modular library for implementing Discord HTTP interactions.
@@ -15,7 +16,7 @@ It handles various interactions, adds a layer of wrapper over raw interactions w
 
 📄 **Documentation:** [https://discordhttps.js.org/](https://discordhttps.js.org/)
 
-Need help? Join us on discord  [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
+Need help? Join us on discord [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
 
 ```js
 import Client, { InteractionResponseType } from "discord.https";
@@ -51,7 +52,7 @@ await client.listen("interactions", 3000, () => {
 
 ## Examples
 
->Examples are outdated. You are no longer required to handle the raw response. The core is still there, and you can use these examples as a reference.
+> Examples are outdated. You are no longer required to handle the raw response. The core is still there, and you can use these examples as a reference.
 
 Deprecate warning, this example can be serve as a basic idea, but it has been changed quite a lot since, with utility functions.
 
@@ -84,6 +85,6 @@ npm install discord.https @discordhttps/cloudflare-adapter
 - [ ] Build a simplified `npx create-app` command
 - [ ] Implement tests
 - [ ] Build channel, guild, etc wrapper
-- [X] ~~Build interaction wrapper~~
+- [x] ~~Build interaction wrapper~~
 - [x] ~~HTTP adapters to support most hosting environments~~. Currently implemented: Node.js adapter for [Node.js runtime](https://github.com/discord-http/nodejs-adapter) and [Cloudflare adapter for V8 isolates runtime](https://github.com/discord-http/cloudflare-adapter)
 - [x] Examples(currently outdated, requires update)
