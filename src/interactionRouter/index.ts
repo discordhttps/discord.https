@@ -127,9 +127,9 @@ class InteractionRouter {
     this._register("command", build.name, fns);
 
     const commandDefinition = build.toJSON();
-    this.CommandDefinitions.push(commandDefinition);
+    this.CommandDefinitions.push(commandDefinition as any);
 
-    return new AutoCompleteKeyBuilder(commandDefinition);
+    return new AutoCompleteKeyBuilder(commandDefinition as any);
   }
 
   /**

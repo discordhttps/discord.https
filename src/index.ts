@@ -201,9 +201,9 @@ class Client extends HttpInteractionServer {
     this.router._register("command", build.name, fns);
 
     const commandDefinition = build.toJSON();
-    this.router.CommandDefinitions.push(commandDefinition);
+    this.router.CommandDefinitions.push(commandDefinition as any);
 
-    return new AutoCompleteKeyBuilder(commandDefinition);
+    return new AutoCompleteKeyBuilder(commandDefinition as any);
   }
 
   /**
