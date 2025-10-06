@@ -215,11 +215,11 @@ export type CommandbuilderType = (
 
 export type userContextCommandBuilderType = (
   builder: ReturnType<typeof userContextCommandBuilder>
-) => SlashCommandBuilder;
+) => ContextMenuCommandBuilder;
 
 export type messageContextCommandBuilderType = (
   builder: ReturnType<typeof messageContextCommandBuilder>
-) => SlashCommandBuilder;
+) => ContextMenuCommandBuilder;
 
 export type CommandDefinitionType =
   | RESTPostAPIContextMenuApplicationCommandsJSONBody
