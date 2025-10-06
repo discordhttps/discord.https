@@ -390,9 +390,7 @@ class InteractionRouterCollector {
    * ```
    */
 
-  register(
-    ...routes: (typeof InteractionRouter | InteractionRouterCollector)[]
-  ) {
+  register(...routes: (InteractionRouter | InteractionRouterCollector)[]) {
     routes.forEach((route) => {
       if (route instanceof InteractionRouter) {
         this.__internal_collectedRoutes.push(route);
