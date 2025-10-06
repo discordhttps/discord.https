@@ -65,6 +65,10 @@ import type Client from "../index.js";
 
 import {
   SlashCommandBuilder,
+  type SlashCommandOptionsOnlyBuilder,
+  type SlashCommandSubcommandsOnlyBuilder,
+  type SlashCommandSubcommandBuilder,
+  type SlashCommandSubcommandGroupBuilder,
   ContextMenuCommandBuilder,
 } from "@discordjs/builders";
 
@@ -211,7 +215,12 @@ export interface RouteStack {
 
 export type CommandbuilderType = (
   builder: SlashCommandBuilder
-) => SlashCommandBuilder;
+) =>
+  | SlashCommandBuilder
+  | SlashCommandOptionsOnlyBuilder
+  | SlashCommandSubcommandsOnlyBuilder
+  | SlashCommandSubcommandBuilder
+  | SlashCommandSubcommandGroupBuilder;
 
 export type userContextCommandBuilderType = (
   builder: ReturnType<typeof userContextCommandBuilder>
