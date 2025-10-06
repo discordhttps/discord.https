@@ -415,7 +415,10 @@ class Client extends HttpInteractionServer {
    * Returns helpers for registering slash commands.
    *
    * @param log - Log progress. Defaults to true.
-   * @returns Methods to register commands globally or locally.
+   * @returns An object containing:
+   *  - `globalSlashRegistrar`: Function to register commands globally.
+   *  - `localSlashRegistrar(guildId: string)`: Function to register commands locally for a specific guild, requires the guild ID as a parameter.
+   *  - `payload`: The payload returned from `GET /applications/@me`.
    */
   async getRegistar(log = true) {
     const commandsBody = this.router.CommandDefinitions;
@@ -451,6 +454,7 @@ class Client extends HttpInteractionServer {
     }
     var upperThis = this;
     return {
+      payload: currentClient,
       async globalSlashRegistar() {
         if (log) {
           console.log(
