@@ -14,12 +14,22 @@
 
 It handles various interactions, adds a layer of wrapper over raw interactions with rich utility methods, and organizes them into modular routes, making your bot's code cleaner, easier to understand, and easier to maintain. It works seamlessly in both serverless and persistent server environments.
 
-📄 **Documentation:** [https://discordhttps.js.org/](https://discordhttps.js.org/)
+📄 **Documentation:** [https://discordhttps.js.org](https://discordhttps.js.org)
 
 Need help? Join us on discord [https://discord.gg/pSgfJ4K5ej](https://discord.gg/pSgfJ4K5ej)
 
+## Initilize discord.https
+
+You can initialize a project via CLI:
+
+```bash
+npx create-discord-https@latest
+```
+
+Or, manually:
+
 ```js
-import Client, { InteractionResponseType } from "discord.https";
+import Client from "discord.https";
 import NodeAdapter from "@discordhttps/nodejs-adapter";
 
 const client = new Client({
@@ -52,39 +62,56 @@ await client.listen("interactions", 3000, () => {
 
 ## Examples
 
-> Examples are outdated. You are no longer required to handle the raw response. The core is still there, and you can use these examples as a reference.
-
-Deprecate warning, this example can be serve as a basic idea, but it has been changed quite a lot since, with utility functions.
+Note: You can get this reference implementation directly via CLI, see Initializing Your Project → Using CLI.
 
 **You can view example/reference implementations here:**
 
-- Nodejs Runtime: [https://github.com/discordhttps/nodejs-example](https://github.com/discordhttps/nodejs-example)
-- V8 isolates runtime(Cloudflare Workers): [https://github.com/discordhttps/cloudflare-example](https://github.com/discordhttps/cloudflare-example)
+- Nodejs: [https://github.com/discordhttps/create-discord-https/tree/main/templates/node](https://github.com/discordhttps/create-discord-https/tree/main/templates/node)
+- V8 isolates runtime(Cloudflare Workers): [https://github.com/discordhttps/create-discord-https/tree/main/templates/cloudflare](https://github.com/discordhttps/create-discord-https/tree/main/templates/cloudflare)
+- Vercel Serverless: [https://github.com/discordhttps/create-discord-https/tree/main/templates/vercel](https://github.com/discordhttps/create-discord-https/tree/main/templates/vercel)
 
-## Installation
+## Initializing Your Project
 
-### Node.js
+### Using CLI (Recommended)
+
+```bash
+npx create-discord-https@latest
+```
+
+Follow the prompts to set up your project.
+
+### Manual Installation
+
+Install discord.https along with the adapter for your server environment.
+
+#### Node.js
 
 ```
 npm install discord.https @discordhttps/nodejs-adapter
 ```
 
-### Cloudflare
+#### Cloudflare
 
 ```
 npm install discord.https @discordhttps/cloudflare-adapter
 ```
 
+#### Vercel
+
+```
+npm install discord.https @discordhttps/vercel-adapter
+```
+
 ## Documentation
 
-- **Discord.https Docs:** [https://discordhttps.js.org/](https://discordhttps.js.org/)
+- **Discord.https Docs:** [https://discordhttps.js.org](https://discordhttps.js.org)
 - **Discord Interaction Docs:** [Responding to an Interaction](https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction)
 
 ## Todo for v4
 
-- [ ] Build a simplified `npx create-app` command
 - [ ] Implement tests
 - [ ] Build channel, guild, etc wrapper
+- [x] ~~Build a simplified `npx create-app` command~~
 - [x] ~~Build interaction wrapper~~
 - [x] ~~HTTP adapters to support most hosting environments~~. Currently implemented: Node.js adapter for [Node.js runtime](https://github.com/discord-http/nodejs-adapter) and [Cloudflare adapter for V8 isolates runtime](https://github.com/discord-http/cloudflare-adapter)
 - [x] Examples(currently outdated, requires update)
